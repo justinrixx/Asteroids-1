@@ -45,6 +45,7 @@ class GameObject
   public:
   GameObject() : transform(), value(0) { };
   GameObject(const Transform & t) : transform(t), value(0) { };
+	GameObject(byte[] data); 
    virtual void draw() = 0;
    virtual void increment(Asteroids & asteroids) = 0;
    virtual void destroy(Asteroids & asteroids) = 0;
