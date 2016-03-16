@@ -14,16 +14,22 @@
 #include <GL/glut.h>  // Second OpenGL library
 #include <time.h>     // for clock
 #include <cstdlib>    // for rand()
+
+#ifdef _WIN32
 #include <Mmsystem.h>
+#endif // _WIN32
+
 #include "uiInteract.h"
 #include "point.h"
 
 using namespace std;
 
+#ifdef _WIN32
 struct timespec {
 	time_t   tv_sec;        /* seconds */
 	long     tv_nsec;       /* nanoseconds */
 };
+#endif // _WIN32
 
 /*********************************************************************
  * SLEEP
