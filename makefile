@@ -36,7 +36,7 @@
 # The game
 ########################################################################
 a.out: prj4.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o
-	g++ -o a.out prj4.o transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU
+	g++ -o a.out prj4.o transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL
 
 #######################################################################
 # Seperately compiled files
