@@ -42,7 +42,7 @@ a.out: client.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o
 # Seperately compiled files
 #######################################################################
 client.o:asteroids.cpp asteroids.h gameObjects.cpp gameObjects.h
-	g++ client.cpp -c
+	g++ client.cpp -c -lpthread 
 
 uiInteract.o: uiInteract.h uiInteract.cpp
 	g++ uiInteract.cpp uiInteract.h -c

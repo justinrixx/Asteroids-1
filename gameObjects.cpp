@@ -398,7 +398,7 @@ void Saucer::increment(Asteroids & asteroids)
    {
       transform.setAngle(ai.interpolate(this, ai.getTarget(), BULLETLAUNCH));
       asteroids.bullets.push_back(fire());
-      fireTime = 1000000 // SAUCERSHOOTTIME;
+      fireTime = 1000000; // SAUCERSHOOTTIME;
    }
    else
       fireTime--;

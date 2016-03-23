@@ -12,11 +12,12 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <unistd.h>
-
+#include <pthread.h>
 
 #include "uiInteract.h"
 #include "uiDraw.h"
 #include "asteroids.h"
+//#include "gameEnum.h"
 
 #define NUM_INPUTS 6
 
@@ -27,12 +28,36 @@ using namespace std;
 int sockfd, portno, n;
 struct sockaddr_in serv_addr;
 struct hostent *server;
-bool inputs[NUM_INPUTS] ;
+bool inputs[NUM_INPUTS];
+char tempBuffer[5] = {0, 0, 0, 0, 0};
+
+/**********************************************************************                                                                                * Listen
+ * What the thread does forever while the game is running. Get input
+ * from the server, serialize it, then reset the game state
+ **********************************************************************/
+void listen()
+{
+  int n; //Not used
+  int numChunks = 0; // Not used
+
+  // TODO: Make sure this is big enough
+  // TODO: is this the right type?
+  float buffer[1000];
+  while (true)
+  {
+    bzero(tempBuffer, 5);
+    n = read(sockfd, buffer, 4);
+
+    // get the number of chunks
+    // FLOAT -> INT?: 
+    numChunks = (int)(tempBuffer)[0];
+  }
+}
 
 /**********************************************************************
  * CALLBACK
  * The main interaction loop of the engine. Calls the
- * Skeet ++ operator and the gun input functions.
+ * game ++ operator
  **********************************************************************/
 void callBack(const Interface *pUI, void *p)
 {
