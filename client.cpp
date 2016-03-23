@@ -6,10 +6,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <pthread>
 
 #include "uiInteract.h"
 #include "uiDraw.h"
 #include "asteroids.h"
+//#include "gameEnum.h"
 
 #define NUM_INPUTS 6
 
@@ -21,11 +23,30 @@ int sockfd, portno, n;
 struct sockaddr_in serv_addr;
 struct hostent *server;
 bool[NUM_INPUTS] inputs;
+char[5] tempBuffer = {0, 0, 0, 0, 0}
+
+/**********************************************************************                                                                                * Listen
+ * What the thread does forever while the game is running. Get input
+ * from the server, serialize it, then reset the game state
+ **********************************************************************/
+void listen()
+{
+  int n;
+  int numChunks = 0;
+  while (true)
+  {
+    bzero(tempBuffer, 5);
+    n = read(sockfd, buffer, 4);
+
+    // get the number of chunks
+    numChunks = (int *)(tempBuffer)[0];
+  }
+}
 
 /**********************************************************************
  * CALLBACK
  * The main interaction loop of the engine. Calls the
- * Skeet ++ operator and the gun input functions.
+ * game ++ operator
  **********************************************************************/
 void callBack(const Interface *pUI, void *p)
 {
