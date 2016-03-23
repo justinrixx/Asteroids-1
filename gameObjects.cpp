@@ -21,14 +21,14 @@ using namespace std;
 * GAMEOBJECT::GAMEOBJECT  Creates a new game object based on the given
 *             array of integers
 ***********************************************************************/
-GameObject::GameObject(int [] data)
+void GameObject::fromBytes(float * data)
 {
-	this->transform.getPos().setX((float)data[0]);
-	this->transform.getPos().setY((float)data[1]);
-	this->transform.setDX((float)data[2]);
-	this->transform.setDY((float)data[3]);
-	this->transform.setAngle((float)data[4]);
-	this->transform.setDAngle((float)data[5]);
+	this->transform.getPos().setX(data[0]);
+	this->transform.getPos().setY(data[1]);
+	this->transform.setDX(data[2]);
+	this->transform.setDY(data[3]);
+	this->transform.setAngle(data[4]);
+	this->transform.setDAngle(data[5]);
 }
 
 /**********************************************************************
@@ -36,16 +36,16 @@ GameObject::GameObject(int [] data)
 *             integers, which can then be used to construct a new
 *             GameObject. 
 ***********************************************************************/
-int * GameObject::ToBytes()
+float * GameObject::toBytes()
 {
-	int * data = new int[6];
+	float * data = new float[6];
 
-	data[0] = (int)this->transform.getPos().getX();
-	data[1] = (int)this->transform.getPos().getY();
-	data[2] = (int)this->transform.getDX();
-	data[3] = (int)this->transform.getDY();
-	data[4] = (int)this->transform.getAngle();
-	data[5] = (int)this->transform.getDAngle();
+	data[0] = this->transform.getPos().getX();
+	data[1] = this->transform.getPos().getY();
+	data[2] = this->transform.getDX();
+	data[3] = this->transform.getDY();
+	data[4] = this->transform.getAngle();
+	data[5] = this->transform.getDAngle();
 
 	return data; 
 }

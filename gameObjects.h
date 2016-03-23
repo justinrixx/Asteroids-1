@@ -45,12 +45,12 @@ class GameObject
   public:
 	GameObject() : transform(), value(0) { };
 	GameObject(const Transform & t) : transform(t), value(0) { };
-	GameObject(byte[] data); 
+	void fromBytes(float * data); 
 	virtual void draw() = 0;
 	virtual void increment(Asteroids & asteroids) = 0;
 	virtual void destroy(Asteroids & asteroids) = 0;
 	float getValue() const { return value; };
-	int * GameObject::ToBytes();
+	float * toBytes();
 	Transform transform;
   protected:
 	float value; //The lower the value the better
