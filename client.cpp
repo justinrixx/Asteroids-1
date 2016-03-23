@@ -2,10 +2,17 @@
 * NetworkRoids Client 
 *************************************************************************/
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+#include <ctype.h>
+#include <iostream>
 #include <netdb.h>
+#include <netinet/in.h>
+#include <stdio.h>  // printf
+#include <stdlib.h> // exit, EXIT_FAILURE
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+
 
 #include "uiInteract.h"
 #include "uiDraw.h"
@@ -20,7 +27,7 @@ using namespace std;
 int sockfd, portno, n;
 struct sockaddr_in serv_addr;
 struct hostent *server;
-bool[NUM_INPUTS] inputs;
+bool inputs[NUM_INPUTS] ;
 
 /**********************************************************************
  * CALLBACK
@@ -46,6 +53,11 @@ void callBack(const Interface *pUI, void *p)
                     pUI->isDown(), pUI->isSpace());
 }
 
+void error(string mess) {
+  cout << mess << endl;
+  exit(1);
+}
+
 /*********************************************************************
  * MAIN
  * initialize the drawing window, initialize
@@ -55,14 +67,14 @@ int main(int argc, char **argv)
 {
 
   // CONNECTION STUFF
-  int sockfd, portno, n;
+  int sockfd, portno;
   struct sockaddr_in serv_addr;
   struct hostent *server;
 
   char buffer[2]; // the message buffer
 
   if (argc < 3) {
-    fprintf(stderr,"usage %s hostname port\n", argv[0]);
+    printf("usage %s hostname port\n", argv[0]);
     exit(0);
   }
 
@@ -75,7 +87,7 @@ int main(int argc, char **argv)
 
   if (server == NULL)
     {
-      fprintf(stderr,"ERROR, no such host\n");
+      printf("ERROR, no such host\n");
       exit(0);
     }
 
@@ -101,7 +113,7 @@ int main(int argc, char **argv)
   } while (buffer[0] != '1');
 
   // DONE LOCKSTEP
-    
+
    // Start the drawing
    Interface ui(argc, argv, "Asteroids");
 

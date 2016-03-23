@@ -35,14 +35,14 @@
 ########################################################################
 # The game
 ########################################################################
-a.out: prj4.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o
-	g++ -o a.out prj4.o transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL
+a.out: client.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o
+	g++ -o client client.o transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL
 
 #######################################################################
 # Seperately compiled files
 #######################################################################
-prj4.o: prj4.cpp asteroids.cpp asteroids.h gameObjects.cpp gameObjects.h
-	g++ prj4.cpp -c
+client.o:asteroids.cpp asteroids.h gameObjects.cpp gameObjects.h
+	g++ client.cpp -c
 
 uiInteract.o: uiInteract.h uiInteract.cpp
 	g++ uiInteract.cpp uiInteract.h -c
