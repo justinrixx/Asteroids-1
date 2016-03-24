@@ -33,7 +33,7 @@ struct hostent *server;
 bool inputs[NUM_INPUTS];
 char tempBuffer[5] = {0, 0, 0, 0, 0};
 
-/**********************************************************************                                                                                * Listen
+/**********************************************************************
  * What the thread does forever while the game is running. Get input
  * from the server, serialize it, then reset the game state
  **********************************************************************/
@@ -55,7 +55,7 @@ void listen()
 
     // read the right number of chunks
     bzero(buffer, BUFFER_SIZE);
-    read(sockfd, numChunks * NUM_ITEMS_IN_CHUNK * sizeof(float));
+    read(sockfd, buffer, numChunks * NUM_ITEMS_IN_CHUNK * sizeof(float));
 
     // TODO inflate to the right types
 

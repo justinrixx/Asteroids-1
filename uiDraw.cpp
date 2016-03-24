@@ -15,7 +15,7 @@
 #include <cassert>    // I feel the need... the need for asserts
 #include <time.h>     // for clock
 
-#define __linux__
+//#define __linux__
 
 #ifdef __APPLE__
 #include <openGL/gl.h>    // Main OpenGL library
