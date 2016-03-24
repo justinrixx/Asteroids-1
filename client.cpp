@@ -20,6 +20,8 @@
 //#include "gameEnum.h"
 
 #define NUM_INPUTS 6
+#define BUFFER_SIZE 4000
+#define NUM_ITEMS_IN_CHUNK 7
 
 using namespace std;
 
@@ -37,20 +39,36 @@ char tempBuffer[5] = {0, 0, 0, 0, 0};
  **********************************************************************/
 void listen()
 {
-  int n; //Not used
   int numChunks = 0; // Not used
 
   // TODO: Make sure this is big enough
   // TODO: is this the right type?
-  float buffer[1000];
+  float buffer[BUFFER_SIZE];
   while (true)
   {
     bzero(tempBuffer, 5);
-    n = read(sockfd, buffer, 4);
+    read(sockfd, tempBuffer, 4);
 
     // get the number of chunks
     // FLOAT -> INT?: 
     numChunks = (int)(tempBuffer)[0];
+
+    // read the right number of chunks
+    bzero(buffer, BUFFER_SIZE);
+    read(sockfd, numChunks * NUM_ITEMS_IN_CHUNK * sizeof(float));
+
+    // TODO inflate to the right types
+
+    // get the score and lives number
+    bzero(tempBuffer, 5);
+    read(sockfd, tempBuffer, 4);
+    int score = (int)(tempBuffer)[0];
+
+    bzero(tempBuffer, 5);
+    read(sockfd, tempBuffer, 4);
+    int numLives = (int)(tempBuffer)[0];
+
+    // TODO set the score and numLives
   }
 }
 
