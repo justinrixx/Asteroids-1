@@ -47,7 +47,7 @@ void listen()
   {
     List<GameObject *> bullets;
     List<GameObject *> asteroids;
-    
+
     bzero(tempBuffer, 5);
     read(sockfd, tempBuffer, 4);
 
