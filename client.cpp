@@ -75,49 +75,57 @@ void listen()
         case PLAYER:
         {
           obj = new Ship();
+          players.push_back(obj);
           break;
         }
         case BULLET:
         {
           obj = new Bullet();
+          bullets.push_back(obj);
           break;
         }
         case SMALL_ASTEROID:
         {
           obj = new AsteroidS();
+          asteroids.push_back(obj);
           break;
         }
         case MED_ASTEROID:
         {
           obj = new AsteroidM();
+          asteroids.push_back(obj);
           break;
         }
         case LARGE_ASTEROID:
         {
           obj = new AsteroidL();
+          asteroids.push_back(obj);
           break;
         }
         case MISSILE:
         {
           obj = new Missile();
+          bullets.push_back(obj);
           break;
         }
         case DEBRIS:
         {
           obj = new Debris();
+          debris.push_back(obj);
           break;
         }
-        /*
         case DESTROYER:
         {
           obj = new Destroyer();
+          asteroids.push_back(obj);
           break;
         }
         case SAUCER:
         {
           obj = new Saucer();
+          asteroids.push_back(obj);
           break;
-        }*/
+        }
       }
 
       // set all the members
