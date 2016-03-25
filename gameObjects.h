@@ -27,8 +27,8 @@ using namespace std;
 #define BULLETLAUNCH 5
 #define BULLETLIFETIME 240
 #define SHIPTHRUST .2
-#define SAUCERSHOOTTIME 30//time between successive shots
-#define SHIPTURN 10 
+#define SAUCERSHOO TTIME 30//time between successive shots
+#define SHIPTURN 10
 #define MISSILETHRUST 1.0
 #define MISSILETURN 15
 #define MISSILESTOP .5 //maximum negative acceleration of the missle
@@ -75,13 +75,13 @@ class Enemy : public GameObject
   public:
   Enemy() : GameObject() { };
   protected:
-   
 };
 
 //Saucer
 class Saucer : public Enemy
 {
   public:
+   Saucer();
    Saucer(GameObject * player);
    virtual void draw();
    virtual void increment(Asteroids & asteroids);
@@ -97,6 +97,7 @@ class Saucer : public Enemy
 class Destroyer : public Enemy
 {
   public:
+   Destroyer();
    Destroyer(GameObject * player);
    virtual void draw();
    virtual void increment(Asteroids & asteroids);
@@ -144,7 +145,7 @@ class AsteroidL : public Enemy
 class Bullet : public GameObject
 {
   public:
-  Bullet() : GameObject(), lifeTime(BULLETLIFETIME) { transform.setR(1); };
+   Bullet() : GameObject(), lifeTime(BULLETLIFETIME) { transform.setR(1); };
    Bullet(Transform & t);
    Bullet(Transform & t, Point p);
    virtual void draw();
@@ -158,6 +159,7 @@ class Bullet : public GameObject
 class Missile : public GameObject
 {
   public:
+   Missile();
    Missile(Transform & t, list<GameObject*> & targets);
    virtual void draw();
    virtual void increment(Asteroids & asteroids);
@@ -172,7 +174,7 @@ class Missile : public GameObject
 class Debris : public GameObject
 {
   public:
-  Debris() : GameObject(), lifeTime(30) { transform.setR(3); };
+   Debris() : GameObject(), lifeTime(30) { transform.setR(3); };
    Debris(Transform & t);
    virtual void draw();
    virtual void increment(Asteroids & asteroids);

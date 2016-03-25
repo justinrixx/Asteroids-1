@@ -47,9 +47,9 @@ void *playerInputHandler(void *param)
 {
 	bufferItem consumedItem;
 
-	PlayerInput * player = (PlayerInput *)param; 
+	PlayerInput * player = (PlayerInput *)param;
 
-	bool[PLAYER_BUFFER_SIZE + 1] buffer; 
+	bool[PLAYER_BUFFER_SIZE + 1] buffer;
 
 	while (true)
 	{
@@ -65,7 +65,7 @@ void *playerInputHandler(void *param)
 		player->right = buffer[2];
 		player->down = buffer[3];
 		player->space = buffer[4];
-		//
+		
 		//release the locks     
 		pthread_mutex_unlock(&(player->mutex));
 	}

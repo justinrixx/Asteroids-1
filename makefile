@@ -23,7 +23,7 @@
 #    then pretty much without fail will kill that target. I also added
 #    Saucers which appear in the 2nd round, that shoot at the player
 #    based on his current speed. Overall, I believe all the changes
-#    make the game much more enjoyable. 
+#    make the game much more enjoyable.
 #
 #    Estimated:  6.0 hrs
 #    Actual:     4.0+ hrs - The base game took me 4.0 hours the rest
@@ -31,18 +31,29 @@
 #      The hardest part was getting my homing missile to behave correctly
 ########################################################################
 
+deault:
+	echo "run make server/client to compile the respective things"
 
 ########################################################################
 # The game
 ########################################################################
-a.out: prj4.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o
-	g++ -o a.out prj4.o transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL
+
+## SERVER STUFF
+server: asteroids-server.h gameObjects.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o
+	g++ -o server server.cpp asteroids-server.h gameObjects.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o -lglut -lGLU -lGL -lpthread
+
+asteroids-server.h: gameObjects.o asteroids.o
+	g++ -c asteroids-server.cpp gameObjects.o asteroids.o
+
+## CLIENT STUFF
+client: client.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o
+	g++ -o client client.o transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL
 
 #######################################################################
 # Seperately compiled files
 #######################################################################
-prj4.o: prj4.cpp asteroids.cpp asteroids.h gameObjects.cpp gameObjects.h
-	g++ prj4.cpp -c
+client.o:asteroids.cpp asteroids.h gameObjects.cpp gameObjects.h
+	g++ client.cpp -c -lpthread
 
 uiInteract.o: uiInteract.h uiInteract.cpp
 	g++ uiInteract.cpp uiInteract.h -c

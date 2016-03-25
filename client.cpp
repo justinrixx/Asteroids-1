@@ -2,16 +2,26 @@
 * NetworkRoids Client 
 *************************************************************************/
 
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+#include <ctype.h>
+#include <iostream>
 #include <netdb.h>
+#include <netinet/in.h>
+#include <stdio.h>  // printf
+#include <stdlib.h> // exit, EXIT_FAILURE
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <pthread.h>
 
 #include "uiInteract.h"
 #include "uiDraw.h"
 #include "asteroids.h"
+//#include "gameEnum.h"
 
 #define NUM_INPUTS 6
+#define BUFFER_SIZE 4000
+#define NUM_ITEMS_IN_CHUNK 7
 
 using namespace std;
 
@@ -20,12 +30,52 @@ using namespace std;
 int sockfd, portno, n;
 struct sockaddr_in serv_addr;
 struct hostent *server;
-bool[NUM_INPUTS] inputs;
+bool inputs[NUM_INPUTS];
+char tempBuffer[5] = {0, 0, 0, 0, 0};
+
+/**********************************************************************
+ * What the thread does forever while the game is running. Get input
+ * from the server, serialize it, then reset the game state
+ **********************************************************************/
+void listen()
+{
+  int numChunks = 0; // Not used
+
+  // TODO: Make sure this is big enough
+  // TODO: is this the right type?
+  float buffer[BUFFER_SIZE];
+  while (true)
+  {
+    bzero(tempBuffer, 5);
+    read(sockfd, tempBuffer, 4);
+
+    // get the number of chunks
+    // FLOAT -> INT?: 
+    numChunks = (int)(tempBuffer)[0];
+
+    // read the right number of chunks
+    bzero(buffer, BUFFER_SIZE);
+    read(sockfd, buffer, numChunks * NUM_ITEMS_IN_CHUNK * sizeof(float));
+
+    // TODO inflate to the right types
+
+    // get the score and lives number
+    bzero(tempBuffer, 5);
+    read(sockfd, tempBuffer, 4);
+    int score = (int)(tempBuffer)[0];
+
+    bzero(tempBuffer, 5);
+    read(sockfd, tempBuffer, 4);
+    int numLives = (int)(tempBuffer)[0];
+
+    // TODO set the score and numLives
+  }
+}
 
 /**********************************************************************
  * CALLBACK
  * The main interaction loop of the engine. Calls the
- * Skeet ++ operator and the gun input functions.
+ * game ++ operator
  **********************************************************************/
 void callBack(const Interface *pUI, void *p)
 {
@@ -46,6 +96,11 @@ void callBack(const Interface *pUI, void *p)
                     pUI->isDown(), pUI->isSpace());
 }
 
+void error(string mess) {
+  cout << mess << endl;
+  exit(1);
+}
+
 /*********************************************************************
  * MAIN
  * initialize the drawing window, initialize
@@ -55,14 +110,14 @@ int main(int argc, char **argv)
 {
 
   // CONNECTION STUFF
-  int sockfd, portno, n;
+  int sockfd, portno;
   struct sockaddr_in serv_addr;
   struct hostent *server;
 
   char buffer[2]; // the message buffer
 
   if (argc < 3) {
-    fprintf(stderr,"usage %s hostname port\n", argv[0]);
+    printf("usage %s hostname port\n", argv[0]);
     exit(0);
   }
 
@@ -75,7 +130,7 @@ int main(int argc, char **argv)
 
   if (server == NULL)
     {
-      fprintf(stderr,"ERROR, no such host\n");
+      printf("ERROR, no such host\n");
       exit(0);
     }
 
@@ -101,7 +156,7 @@ int main(int argc, char **argv)
   } while (buffer[0] != '1');
 
   // DONE LOCKSTEP
-    
+
    // Start the drawing
    Interface ui(argc, argv, "Asteroids");
 
