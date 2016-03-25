@@ -34,6 +34,9 @@ struct hostent *server;
 bool inputs[NUM_INPUTS];
 char tempBuffer[5] = {0, 0, 0, 0, 0};
 
+// SYNCHRONIZATION STUFF
+pthread_mutex_t mutex;
+
 /**********************************************************************
  * What the thread does forever while the game is running. Get input
  * from the server, serialize it, then reset the game state
@@ -59,6 +62,62 @@ void listen()
     {
       bzero(buffer, B_S_PLUS_1);
       read(sockfd, buffer, BUFFER_SIZE * 4);
+
+      TYPE type = (int)(buffer[6]);
+      GameObject * obj;
+
+      // Inflate the correct type of object
+      switch (type)
+      {
+        case PLAYER:
+        {
+          obj = new Ship();
+          break;
+        }
+        case BULLET:
+        {
+          obj = new Bullet();
+          break;
+        }
+        case SMALL_ASTEROID:
+        {
+          obj = new AsteroidS();
+          break;
+        }
+        case MED_ASTEROID:
+        {
+          obj = new AsteroidM();
+          break;
+        }
+        case LARGE_ASTEROID:
+        {
+          obj = new AsteroidL();
+          break;
+        }
+        case MISSILE:
+        {
+          obj = new Missile();
+          break;
+        }
+        case DEBRIS:
+        {
+          obj = new Debris();
+          break;
+        }
+        case DESTROYER:
+        {
+          obj = new Destroyer();
+          break;
+        }
+        case SAUCER:
+        {
+          obj = new Saucer();
+          break;
+        }
+      }
+
+      // set all the members
+      obj->fromBytes(buffer);
     }
 
     // get the score and lives number
@@ -70,7 +129,11 @@ void listen()
     read(sockfd, tempBuffer, 4);
     int numLives = (int)(tempBuffer)[0];
 
+    // CRITICAL SECTION
+    pthread_mutex_lock(&mutex);
+    // TODO set the state
     // TODO set the score and numLives
+    pthread_mutex_unlock(&mutex);
   }
 }
 
@@ -89,9 +152,11 @@ void callBack(const Interface *pUI, void *p)
    inputs[2] = pUI->isRight();
    inputs[3] = pUI->isDown();
    inputs[4] = pUI->isSpace();
-   
+
    // Advance the Game
+   pthread_mutex_lock(&mutex);
    (*pAsteroids)++;
+   pthread_mutex_unlock(&mutex);
 
    // Rotate the ship
    pAsteroids->shipInput(pUI->isLeft(), pUI->isRight(), pUI->isUp(),
