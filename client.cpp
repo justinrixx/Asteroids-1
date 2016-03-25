@@ -53,11 +53,11 @@ void listen()
     // FLOAT -> INT?: 
     numChunks = (int)(tempBuffer)[0];
 
-    // read the right number of chunks
-    bzero(buffer, BUFFER_SIZE);
-    read(sockfd, numChunks * NUM_ITEMS_IN_CHUNK * sizeof(float));
-
-    // TODO inflate to the right types
+    // inflate the right types
+    for (int i = 0; i < numChunks; i++)
+    {
+      
+    }
 
     // get the score and lives number
     bzero(tempBuffer, 5);
