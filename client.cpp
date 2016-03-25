@@ -18,6 +18,7 @@
 #include "uiDraw.h"
 #include "asteroids.h"
 #include "gameEnum.h"
+#include "gameObjects.h"
 
 #define NUM_INPUTS 6
 #define BUFFER_SIZE 8
@@ -106,6 +107,7 @@ void listen()
           obj = new Debris();
           break;
         }
+        /*
         case DESTROYER:
         {
           obj = new Destroyer();
@@ -115,7 +117,7 @@ void listen()
         {
           obj = new Saucer();
           break;
-        }
+        }*/
       }
 
       // set all the members

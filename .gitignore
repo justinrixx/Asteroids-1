@@ -1,4 +1,5 @@
 *.o
 *~
 a.out
-*.gch
+*gch
+client
