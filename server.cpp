@@ -14,6 +14,7 @@
 #include <pthread.h>
 
 #include <vector>
+#include <list>
 
 #include <asteroids-server.h>
 
@@ -23,7 +24,9 @@ using namespace std;
 #define LISTEN_BACKLOG 50
 #define PLAYER_INPUT_BUFFER_SIZE 5
 
-/* PlayerInput: holds the file desciptor and input bools for each player vector */
+/* 
+	PlayerInput: holds the file desciptor and input bools for each player vector 
+*/
 struct PlayerInput
 {
 	bool down;
@@ -35,9 +38,50 @@ struct PlayerInput
 	pthread_mutex_t mutex;
 };
 
-void writeGameState(const Asteroids & asteroids)
-{
 
+/* 
+	Writes the current game state to each of the player's file descriptors
+*/
+void writeGameState(const Asteroids & asteroids, const & vector<PlayerInput *> players)
+{
+	// total "chunks"
+	int total = asteroids.asteroids.size() + asteroids.bullets.size() + asteroids.debris.size() + players.size();
+	for (int i = 0; i < players.length(); ++i)
+		write(players[i].fd, total, 4);
+
+	// send all of the chunks
+	for (list<GameObject*>::iterator it = asteroids.begin(); it != asteroids.end(); ++it)
+	{
+		float * dat = (*it)->toBytes();
+		for (int i = 0; i < players.length(); ++i)
+			write(players[i].fd, data, 7 * 4);
+	}
+	for (list<GameObject*>::iterator it = asteroids.begin(); it != bullets.end(); ++it)
+	{
+		float * dat = (*it)->toBytes();
+		for (int i = 0; i < players.length(); ++i)
+			write(players[i].fd, data, 7 * 4);
+	}
+	for (list<GameObject*>::iterator it = asteroids.begin(); it != debris.end(); ++it)
+	{
+		float * dat = (*it)->toBytes();
+		for (int i = 0; i < players.length(); ++i)
+			write(players[i].fd, data, 7 * 4);
+	}
+	for (list<GameObject*>::iterator it = asteroids.begin(); it != players.end(); ++it)
+	{
+		float * dat = (*it)->toBytes();
+		for (int i = 0; i < players.length(); ++i)
+			write(players[i].fd, data, 7 * 4);
+	}
+
+	// score
+	for (int i = 0; i < players.length(); ++i)
+		write(players[i].fd, asteroids.score, 4);
+
+	// num lives
+	for (int i = 0; i < players.length(); ++i)
+		write(players[i].fd, asteroids.lives, 4);
 }
 
 /*******************************************************************
@@ -165,15 +209,23 @@ int main(int argc, char **argv)
 	}
 
 	//
-	Asteroids asteroids;
+	Asteroids asteroids(2);
 	while (true)
 	{
 		// Advance the Game
 		asteroids++;
 
-		// Rotate the Gun
-		asteroids.shipInput(pUI->isLeft(), pUI->isRight(), pUI->isUp(),
-			pUI->isDown(), pUI->isSpace());
+		// Handle Player Input
+		for (int i = 0; i < 2; ++i)
+		{
+			asteroids.shipInput(i, players[i]->left, players[i]->right, players[i]->up,
+				players[i]->down, players[i]->space);
+		}
+
+		// Write the game state
+		writeGameState(asteroids, players);
+
+		//wait for refresh time here...
 	}
 	
 	//
