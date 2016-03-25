@@ -17,10 +17,11 @@
 #include "uiInteract.h"
 #include "uiDraw.h"
 #include "asteroids.h"
-//#include "gameEnum.h"
+#include "gameEnum.h"
 
 #define NUM_INPUTS 6
-#define BUFFER_SIZE 4000
+#define BUFFER_SIZE 8
+#define B_S_PLUS_1 BUFFER_SIZE * 4 + 1
 #define NUM_ITEMS_IN_CHUNK 7
 
 using namespace std;
@@ -33,30 +34,31 @@ struct hostent *server;
 bool inputs[NUM_INPUTS];
 char tempBuffer[5] = {0, 0, 0, 0, 0};
 
-/**********************************************************************                                                                                * Listen
+/**********************************************************************
  * What the thread does forever while the game is running. Get input
  * from the server, serialize it, then reset the game state
  **********************************************************************/
 void listen()
 {
-  int numChunks = 0; // Not used
+  int numChunks = 0;
 
-  // TODO: Make sure this is big enough
-  // TODO: is this the right type?
   float buffer[BUFFER_SIZE];
   while (true)
   {
+    List<GameObject *> bullets;
+    List<GameObject *> asteroids;
+    
     bzero(tempBuffer, 5);
     read(sockfd, tempBuffer, 4);
 
     // get the number of chunks
-    // FLOAT -> INT?: 
-    numChunks = (int)(tempBuffer)[0];
+    numChunks = tempBuffer[0];
 
     // inflate the right types
     for (int i = 0; i < numChunks; i++)
     {
-      
+      bzero(buffer, B_S_PLUS_1);
+      read(sockfd, buffer, BUFFER_SIZE * 4);
     }
 
     // get the score and lives number

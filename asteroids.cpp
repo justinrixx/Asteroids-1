@@ -18,8 +18,8 @@ using namespace std;
  *          increment functions and by decreasing the various timers
  *          used for the game
  ***********************************************************************/
-void Asteroids::operator ++ (int postfix)
-{
+void Asteroids::operator ++ (int postfix) // NOTE: "postfix" is not used currently
+ {
 
    for (list<GameObject*>::iterator it = asteroids.begin(); it != asteroids.end(); ++it)
       (*it)->increment(*this);
@@ -227,9 +227,9 @@ void Asteroids::destroy()
 			if ((*it)->transform.getCollided())
 			{
 				(*it)->destroy(*this);
-				GameObject* obj = *it;
+				//GameObject* obj = *it;
 				it = asteroids.erase(it);
-				delete (obj);
+				//delete (obj);
 				++score;
 			}
 			else
@@ -244,9 +244,9 @@ void Asteroids::destroy()
 			if ((*it)->transform.getCollided())
 			{
 				(*it)->destroy(*this);
-				GameObject* obj = *it;
+				//GameObject* obj = *it;
 				it = bullets.erase(it);
-				delete (obj);
+				//delete (obj);
 			}
 			else
 				++it;
@@ -260,9 +260,9 @@ void Asteroids::destroy()
 			if ((*it)->transform.getCollided())
 			{
 				(*it)->destroy(*this);
-				GameObject* obj = *it;
+				//GameObject* obj = *it;
 				it = debris.erase(it);
-				delete (obj);
+				//delete (obj);
 			}
 			else
 				++it;
