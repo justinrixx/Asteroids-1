@@ -48,8 +48,10 @@ void listen()
   float buffer[BUFFER_SIZE];
   while (true)
   {
-    List<GameObject *> bullets;
-    List<GameObject *> asteroids;
+    list<GameObject *> bullets;
+    list<GameObject *> asteroids;
+    list<GameObject *> debris;
+    list<GameObject *> players;
     
     bzero(tempBuffer, 5);
     read(sockfd, tempBuffer, 4);
@@ -61,9 +63,9 @@ void listen()
     for (int i = 0; i < numChunks; i++)
     {
       bzero(buffer, B_S_PLUS_1);
-      read(sockfd, buffer, BUFFER_SIZE * 4);
+      read(sockfd, buffer, (BUFFER_SIZE - 1) * sizeof(float));
 
-      TYPE type = (int)(buffer[6]);
+      TYPE type = (TYPE)(buffer[6]);
       GameObject * obj;
 
       // Inflate the correct type of object
