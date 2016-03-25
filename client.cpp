@@ -52,7 +52,7 @@ void listen()
     list<GameObject *> asteroids;
     list<GameObject *> debris;
     list<GameObject *> players;
-    
+
     bzero(tempBuffer, 5);
     read(sockfd, tempBuffer, 4);
 
