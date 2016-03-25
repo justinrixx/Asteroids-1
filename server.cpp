@@ -165,15 +165,20 @@ int main(int argc, char **argv)
 	}
 
 	//
-	Asteroids asteroids;
+	Asteroids asteroids(2);
 	while (true)
 	{
 		// Advance the Game
 		asteroids++;
 
-		// Rotate the Gun
-		asteroids.shipInput(pUI->isLeft(), pUI->isRight(), pUI->isUp(),
-			pUI->isDown(), pUI->isSpace());
+		// Handle Player Input
+		for (int i = 0; i < 2; ++i)
+		{
+			asteroids.shipInput(i, players[i]->left, players[i]->right, players[i]->up,
+				players[i]->down, players[i]->space);
+		}
+
+		//wait for refresh time here...
 	}
 	
 	//
