@@ -38,7 +38,7 @@ void GameObject::fromBytes(float * data)
 ***********************************************************************/
 float * GameObject::toBytes()
 {
-	float * data = new float[6];
+	float * data = new float[7];
 
 	data[0] = this->transform.getPos().getX();
 	data[1] = this->transform.getPos().getY();
@@ -46,6 +46,7 @@ float * GameObject::toBytes()
 	data[3] = this->transform.getDY();
 	data[4] = this->transform.getAngle();
 	data[5] = this->transform.getDAngle();
+	data[6] = (float)this->getType();
 
 	return data; 
 }

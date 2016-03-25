@@ -36,13 +36,14 @@ class Asteroids
    list<GameObject*> bullets;
    list<GameObject*> debris;
    list<Ship *> players;
+
+   int score;
+   int lives;
   private:
    //Ship ship;
    void newWave();
    int difficulty;
-   int score;
    int missileTime;
-   int lives;
    int spawnTime;
    void checkCollision();
    void wrap();
