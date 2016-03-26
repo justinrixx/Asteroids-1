@@ -349,6 +349,10 @@ void AsteroidL::destroy(Asteroids & asteroids)
  *          pointer gameObject, sets the saucer's target to the player
  *          then applies a random velocity and direction.
  ***********************************************************************/
+Saucer::Saucer() : Enemy(), fireTime(90) {
+
+}
+
 Saucer::Saucer(GameObject * player) : Enemy(), ai(player), fireTime(90)
 {
    int xRand = random(0, 100);
@@ -440,6 +444,10 @@ GameObject * Saucer::fire()
  *          pointer gameObject, sets the saucer's target to the player
  *          then applies a random velocity and direction.
  ***********************************************************************/
+Destroyer::Destroyer() : Enemy(), fireTime(90) {
+   //GameObject * player
+}
+
 Destroyer::Destroyer(GameObject * player) : Enemy(), ai(player), fireTime(90)
 {
    int xRand = random(0, 100);
@@ -610,6 +618,10 @@ void Bullet::destroy(Asteroids & asteroids)
  *           and a vector of pointers to gameObjects to be used as targets.
  *           Applies the reference transform plus the launch speed. 
  ***********************************************************************/
+Missile::Missile() {
+   lifeTime = 120;
+}
+
 Missile::Missile(Transform & t, list<GameObject*> & targets) : GameObject(t), ai(this, targets), lifeTime(120)
 {
    transform.setAngle(t.getAngle());

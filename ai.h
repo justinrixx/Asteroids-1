@@ -21,7 +21,8 @@ class GameObject;
 class AI
 {
   public:
-  AI(GameObject * target) : target(target) { };
+   AI() { }; // may break stuff
+   AI(GameObject * target) : target(target) { };
    AI(GameObject * reference, list<GameObject*> & targets) { findTarget(reference, targets); };
    void findTarget(GameObject * reference, list<GameObject*> & targets);
    float getDistanceBetween(Point thisPoint, Point thatPoint);
