@@ -30,12 +30,13 @@ void Asteroids::operator ++ (int postfix) // NOTE: "postfix" is not used current
    for (list<GameObject*>::iterator it = debris.begin(); it != debris.end(); ++it)
       (*it)->increment(*this);
 
-   checkCollision();
+//   checkCollision();
    wrap();
-   destroy();
+//   destroy();
    draw();
 
    //New Round
+   /*
    if (asteroids.size() <= 0) //let's hope its not negative
    {
       difficulty++;
@@ -49,6 +50,7 @@ void Asteroids::operator ++ (int postfix) // NOTE: "postfix" is not used current
    //SpawnTime
    if (spawnTime > 0)
       spawnTime--;
+   */
 
 }
 
@@ -68,7 +70,12 @@ void Asteroids::draw()
       (*it)->draw();
 
    if (lives)
-      ship.draw();
+   {
+      for (list<Ship *>::const_iterator it = players.begin(); it != players.end(); ++it)
+      {
+         (*it)->draw();
+      }
+   }
 
    //Draw our Score
    drawNumber(Point((Point().getXMin() + Point().getXMax()) / 2,
@@ -93,6 +100,7 @@ void Asteroids::draw()
  ***********************************************************************/
 void Asteroids::shipInput(int left, int right, int up, int down, bool space)
 {
+   /*
    ship.advance(left, right, up, down);
    if (space && down && !missileTime && lives)
    {
@@ -101,7 +109,7 @@ void Asteroids::shipInput(int left, int right, int up, int down, bool space)
    }
    else if (space && !down && lives)
       bullets.push_back(ship.fire());
-   
+   */
 }
 
 /**********************************************************************
@@ -110,6 +118,7 @@ void Asteroids::shipInput(int left, int right, int up, int down, bool space)
  ***********************************************************************/
 void Asteroids::newWave()
 {
+   /*
    for (int i = difficulty; i > 0; i-=2)
    {
       Saucer * saucer = new Saucer(&ship);
@@ -138,6 +147,7 @@ void Asteroids::newWave()
       Destroyer * destroyer = new Destroyer(&ship);
       asteroids.push_back(destroyer);
    }
+   */
 }
 
 /**********************************************************************
@@ -147,6 +157,7 @@ void Asteroids::newWave()
  ***********************************************************************/
 void Asteroids::checkCollision()
 {
+   /*
    //Check Collision for our ship
    if (!spawnTime && lives)
 	   for (list<GameObject*>::iterator it = asteroids.begin(); it != asteroids.end(); ++it)
@@ -180,7 +191,8 @@ void Asteroids::checkCollision()
 
    for (list<GameObject*>::iterator it = bullets.begin(); it != bullets.end(); ++it)
       (*it)->transform.checkBounds();
-   
+
+   */
 }
 
 /**********************************************************************
@@ -188,18 +200,21 @@ void Asteroids::checkCollision()
  ***********************************************************************/
 void Asteroids::wrap()
 {
-	for (list<GameObject*>::iterator it = asteroids.begin(); it != asteroids.end(); ++it)
-    {
-       if ((*it)->transform.getBounds())
-       {
-          (*it)->transform.wrap();
-       }
-    }
+   for (list<GameObject*>::iterator it = asteroids.begin(); it != asteroids.end(); ++it)
+   {
+      if ((*it)->transform.getBounds())
+      {
+         (*it)->transform.wrap();
+      }
+   }
 
-   if (ship.transform.getBounds())
-       {
-          ship.transform.wrap();           
-       }
+   for (list<Ship *>::const_iterator it; it != players.end(); ++it)
+   {
+      if ((*it)->transform.getBounds())
+      {
+         (*it)->transform.wrap();           
+      }
+   }
 
    for (list<GameObject*>::iterator it = bullets.begin(); it != bullets.end(); ++it)
    {
@@ -219,6 +234,7 @@ void Asteroids::wrap()
  ***********************************************************************/
 void Asteroids::destroy()
 {
+   /*
 	//use different because we need to remove elements from the middle of the list sometimes
 	{
 		list<GameObject*>::iterator it = asteroids.begin();
@@ -282,6 +298,7 @@ void Asteroids::destroy()
          ship.transform.setDX(0);
          ship.transform.setDY(0);
       }
-   }   
+   }
+   */
 }
 
