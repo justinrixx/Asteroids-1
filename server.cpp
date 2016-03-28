@@ -16,13 +16,13 @@
 #include <vector>
 #include <list>
 
-#include <asteroids-server.h>
+#include "asteroids-server.h"
 
 using namespace std;
 
 #define MY_SOCK_PATH "."
 #define LISTEN_BACKLOG 50
-#define PLAYER_INPUT_BUFFER_SIZE 5
+#define PLAYER_BUFFER_SIZE 5
 
 /* 
 	PlayerInput: holds the file desciptor and input bools for each player vector 
@@ -42,46 +42,50 @@ struct PlayerInput
 /* 
 	Writes the current game state to each of the player's file descriptors
 */
-void writeGameState(const Asteroids & asteroids, const & vector<PlayerInput *> players)
+void writeGameState(const Asteroids & asteroids, const vector<PlayerInput *> & players)
 {
-	// total "chunks"
-	int total = asteroids.asteroids.size() + asteroids.bullets.size() + asteroids.debris.size() + players.size();
-	for (int i = 0; i < players.length(); ++i)
-		write(players[i].fd, total, 4);
-
-	// send all of the chunks
-	for (list<GameObject*>::iterator it = asteroids.begin(); it != asteroids.end(); ++it)
-	{
-		float * dat = (*it)->toBytes();
-		for (int i = 0; i < players.length(); ++i)
-			write(players[i].fd, data, 7 * 4);
-	}
-	for (list<GameObject*>::iterator it = asteroids.begin(); it != bullets.end(); ++it)
-	{
-		float * dat = (*it)->toBytes();
-		for (int i = 0; i < players.length(); ++i)
-			write(players[i].fd, data, 7 * 4);
-	}
-	for (list<GameObject*>::iterator it = asteroids.begin(); it != debris.end(); ++it)
-	{
-		float * dat = (*it)->toBytes();
-		for (int i = 0; i < players.length(); ++i)
-			write(players[i].fd, data, 7 * 4);
-	}
-	for (list<GameObject*>::iterator it = asteroids.begin(); it != players.end(); ++it)
-	{
-		float * dat = (*it)->toBytes();
-		for (int i = 0; i < players.length(); ++i)
-			write(players[i].fd, data, 7 * 4);
-	}
-
-	// score
-	for (int i = 0; i < players.length(); ++i)
-		write(players[i].fd, asteroids.score, 4);
-
-	// num lives
-	for (int i = 0; i < players.length(); ++i)
-		write(players[i].fd, asteroids.lives, 4);
+   // total "chunks"
+   int total = asteroids.asteroids.size() + asteroids.bullets.size() + asteroids.debris.size() + players.size();
+   for (int i = 0; i < players.size(); ++i)
+      write(players[i]->fd, &total, 4);
+   
+   // send all of the chunks
+   for (list<GameObject*>::const_iterator it = asteroids.asteroids.begin(); it != asteroids.asteroids.end(); ++it)
+   {
+      float * dat = (*it)->toBytes();
+      for (int i = 0; i < players.size(); ++i)
+         write(players[i]->fd, dat, 7 * sizeof(float));
+      delete [] dat;
+   }
+   for (list<GameObject*>::const_iterator it = asteroids.bullets.begin(); it != asteroids.bullets.end(); ++it)
+   {
+      float * dat = (*it)->toBytes();
+      for (int i = 0; i < players.size(); ++i)
+         write(players[i]->fd, dat, 7 * sizeof(float));
+      delete [] dat;
+   }
+   for (list<GameObject*>::const_iterator it = asteroids.debris.begin(); it != asteroids.debris.end(); ++it)
+   {
+      float * dat = (*it)->toBytes();
+      for (int i = 0; i < players.size(); ++i)
+         write(players[i]->fd, dat, 7 * sizeof(float));
+      delete [] dat;
+   }
+   for (vector<Ship*>::const_iterator it = asteroids.players.begin(); it != asteroids.players.end(); ++it)
+   {
+      float * dat = (*it)->toBytes();
+      for (int i = 0; i < players.size(); ++i)
+         write(players[i]->fd, dat, 7 * sizeof(float));
+      delete [] dat;
+   }
+   
+   // score
+   for (int i = 0; i < players.size(); ++i)
+      write(players[i]->fd, &asteroids.score, sizeof(int));
+   
+   // num lives
+   for (int i = 0; i < players.size(); ++i)
+      write(players[i]->fd, &asteroids.lives, sizeof(int));
 }
 
 /*******************************************************************
@@ -89,30 +93,28 @@ void writeGameState(const Asteroids & asteroids, const & vector<PlayerInput *> p
 *******************************************************************/
 void *playerInputHandler(void *param)
 {
-	bufferItem consumedItem;
-
-	PlayerInput * player = (PlayerInput *)param;
-
-	bool[PLAYER_BUFFER_SIZE + 1] buffer;
-
-	while (true)
-	{
-		//Get the input from the players fd
-		bzero(buffer, PLAYER_BUFFER_SIZE + 1);
-		n = read(player->fd, buffer, PLAYER_BUFFER_SIZE);
-
-		pthread_mutex_lock(&(player->mutex));
-			
-		//CRITICAL SECTION
-		player->up = buffer[0];
-		player->left = buffer[1];
-		player->right = buffer[2];
-		player->down = buffer[3];
-		player->space = buffer[4];
-		
-		//release the locks     
-		pthread_mutex_unlock(&(player->mutex));
-	}
+   PlayerInput * player = (PlayerInput *)param;
+   
+   bool buffer [PLAYER_BUFFER_SIZE + 1];
+   
+   while (true)
+   {
+      //Get the input from the players fd
+      bzero(buffer, PLAYER_BUFFER_SIZE + 1);
+      int n = read(player->fd, buffer, PLAYER_BUFFER_SIZE);
+      
+      pthread_mutex_lock(&(player->mutex));
+      
+      //CRITICAL SECTION
+      player->up = buffer[0];
+      player->left = buffer[1];
+      player->right = buffer[2];
+      player->down = buffer[3];
+      player->space = buffer[4];
+      
+      //release the locks     
+      pthread_mutex_unlock(&(player->mutex));
+   }
 }
 
 /*
@@ -195,49 +197,42 @@ int main(int argc, char **argv)
 	//
 	// START THE GAME
 	//
-
+        vector<pthread_t> threads;
 	//kick off the player input threads
 	for (int i = 0; i < 2; ++i)
 	{
-		threads.push_back(pthread_t());
-		if (pthread_create(&threads[threads.size() - 1], NULL,
-			playerInputHandler, (void*)players[i]))
-		{
-			cout << "Error: unable to create the thread\n";
-			exit(-1);
-		}
+           threads.push_back(pthread_t());
+           if (pthread_create(&threads[threads.size() - 1], NULL,
+                              playerInputHandler, (void*)players[i]))
+           {
+              cout << "Error: unable to create the thread\n";
+              exit(-1);
+           }
 	}
 
 	//
 	Asteroids asteroids(2);
 	while (true)
 	{
-		// Advance the Game
-		asteroids++;
-
-		// Handle Player Input
-		for (int i = 0; i < 2; ++i)
-		{
-			asteroids.shipInput(i, players[i]->left, players[i]->right, players[i]->up,
-				players[i]->down, players[i]->space);
-		}
-
-		// Write the game state
-		writeGameState(asteroids, players);
-
-		//wait for refresh time here...
+           // Advance the Game
+           asteroids++;
+           
+           // Handle Player Input
+           for (int i = 0; i < 2; ++i)
+           {
+              asteroids.shipInput(i, players[i]->left, players[i]->right, players[i]->up,
+                                  players[i]->down, players[i]->space);
+           }
+           
+           // Write the game state
+           writeGameState(asteroids, players);
+           
+           //wait for refresh time here...
 	}
 	
 	//
 	// END THE GAME
 	//
-	n = write(endingPlayer, "e", 1);
-	if (n < 0)
-		error("writing to the socket");
-
-	n = write(otherPlayer, "e", 1);
-	if (n < 0)
-		error("writing to the socket");
 
 	// close the sockets
 	close(clifd1);

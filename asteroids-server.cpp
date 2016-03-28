@@ -8,8 +8,9 @@
 *    This file contains the class definitions for the Asteroids Class.
 ************************************************************************/
 
-#include "asteroids.h"
+#include "asteroids-server.h"
 #include "gameObjects.h"
+#include <cstdlib>
 using namespace std;
 
 /**********************************************************************
@@ -56,24 +57,15 @@ void Asteroids::operator ++ (int postfix)
  *             based on the input parameters
  ***********************************************************************/
 void Asteroids::shipInput(int iPlayer, int left, int right, int up, int down, bool space)
-{
-	int i = 0;
-	list<Ship *>::iterator player = players.begin();
-
-	while (i < iPlayer)
-	{
-		++i;
-		++player;
-	}
-	
-   (*player)->advance(left, right, up, down);
+{   	
+   players[iPlayer]->advance(left, right, up, down);
    if (space && down && !missileTime && lives)
    {
-      bullets.push_back((*player)->fireMissile(asteroids));
+      bullets.push_back(players[iPlayer]->fireMissile(asteroids));
       missileTime = MISSILECOOLDOWN;
    }
    else if (space && !down && lives)
-      bullets.push_back((*player)->fire());
+      bullets.push_back(players[iPlayer]->fire());
    
 }
 
@@ -85,9 +77,9 @@ void Asteroids::newWave()
 {
    for (int i = difficulty; i > 0; i-=2)
    {
-	  int target = rand() % players.size();
+      int target = rand() % players.size();
 
-      Saucer * saucer = new Saucer(&(players[target]));
+      Saucer * saucer = new Saucer((players[target]));
       asteroids.push_back(saucer);
    }
 
@@ -112,7 +104,7 @@ void Asteroids::newWave()
    {
 	  int target = rand() % players.size();
 
-	  Destroyer * destroyer = new Destroyer(&(players[target]));
+	  Destroyer * destroyer = new Destroyer((players[target]));
       asteroids.push_back(destroyer);
    }
 }
@@ -127,19 +119,19 @@ void Asteroids::checkCollision()
    //Check Collision for our ship
    if (!spawnTime && lives)
 	   for (list<GameObject*>::iterator it = asteroids.begin(); it != asteroids.end(); ++it)
-		   for (list<Ship*>::iterator pit = players.begin(); pit != players.end(); ++pit)
+		   for (vector<Ship*>::iterator pit = players.begin(); pit != players.end(); ++pit)
 		       (*pit)->transform.checkCollision((*it)->transform);
 
    //Check for Bullets and our Ship
    if (!spawnTime && lives)
 	   for (list<GameObject*>::iterator it = bullets.begin(); it != bullets.end(); ++it)
-		   for (list<Ship*>::iterator pit = players.begin(); pit != players.end(); ++pit)
+		   for (vector<Ship*>::iterator pit = players.begin(); pit != players.end(); ++pit)
 		     (*it)->transform.checkCollision((*pit)->transform);
 
    //Check for Ship and Bullets
    if (!spawnTime && lives)
 	   for (list<GameObject*>::iterator it = bullets.begin(); it != bullets.end(); ++it)
-		   for (list<Ship*>::iterator pit = players.begin(); pit != players.end(); ++pit)
+		   for (vector<Ship*>::iterator pit = players.begin(); pit != players.end(); ++pit)
 		     (*pit)->transform.checkCollision((*it)->transform);
 
    //Check for Bullets and the Asteroids
@@ -156,7 +148,7 @@ void Asteroids::checkCollision()
    for (list<GameObject*>::iterator it = asteroids.begin(); it != asteroids.end(); ++it)
       (*it)->transform.checkBounds();
 
-   for (list<Ship*>::iterator it = players.begin(); it != players.end(); ++it)
+   for (vector<Ship*>::iterator it = players.begin(); it != players.end(); ++it)
 	  (*it)->transform.checkBounds();
 
    for (list<GameObject*>::iterator it = bullets.begin(); it != bullets.end(); ++it)
@@ -169,7 +161,7 @@ void Asteroids::checkCollision()
  ***********************************************************************/
 void Asteroids::wrap()
 {
-	for (list<GameObject*>::iterator it = asteroids.begin(); it != asteroids.end(); ++it)
+   for (list<GameObject*>::iterator it = asteroids.begin(); it != asteroids.end(); ++it)
     {
        if ((*it)->transform.getBounds())
        {
@@ -177,12 +169,12 @@ void Asteroids::wrap()
        }
     }
 
-   for (list<Ship*>::iterator pit = players.begin(); pit != players.end(); ++pit)
+   for (vector<Ship*>::iterator pit = players.begin(); pit != players.end(); ++pit)
    {
-		if ((*pit)->transform.getBounds())
-		{
-			(*pit)->transform.wrap();
-		}
+      if ((*pit)->transform.getBounds())
+      {
+         (*pit)->transform.wrap();
+      }
    }
    for (list<GameObject*>::iterator it = bullets.begin(); it != bullets.end(); ++it)
    {
@@ -203,75 +195,75 @@ void Asteroids::destroy()
 {
 	//use different because we need to remove elements from the middle of the list sometimes
 	{
-		list<GameObject*>::iterator it = asteroids.begin();
-		while (it != asteroids.end())
-		{
-			if ((*it)->transform.getCollided())
-			{
-				(*it)->destroy(*this);
-				GameObject* obj = *it;
-				it = asteroids.erase(it);
-				delete (obj);
-				++score;
-			}
-			else
-				++it;
-		}
+           list<GameObject*>::iterator it = asteroids.begin();
+           while (it != asteroids.end())
+           {
+              if ((*it)->transform.getCollided())
+              {
+                 (*it)->destroy(*this);
+                 GameObject* obj = *it;
+                 it = asteroids.erase(it);
+                 delete (obj);
+                 ++score;
+              }
+              else
+                 ++it;
+           }
 	}
 
 	{
-		list<GameObject*>::iterator it = bullets.begin();
-		while (it != bullets.end())
-		{
-			if ((*it)->transform.getCollided())
-			{
-				(*it)->destroy(*this);
-				GameObject* obj = *it;
-				it = bullets.erase(it);
-				delete (obj);
-			}
-			else
-				++it;
-		}
+           list<GameObject*>::iterator it = bullets.begin();
+           while (it != bullets.end())
+           {
+              if ((*it)->transform.getCollided())
+              {
+                 (*it)->destroy(*this);
+                 GameObject* obj = *it;
+                 it = bullets.erase(it);
+                 delete (obj);
+              }
+              else
+                 ++it;
+           }
 	}
-
+        
 	{
-		list<GameObject*>::iterator it = debris.begin();
-		while (it != debris.end())
-		{
-			if ((*it)->transform.getCollided())
-			{
-				(*it)->destroy(*this);
-				GameObject* obj = *it;
-				it = debris.erase(it);
-				delete (obj);
-			}
-			else
-				++it;
-		}
+           list<GameObject*>::iterator it = debris.begin();
+           while (it != debris.end())
+           {
+              if ((*it)->transform.getCollided())
+              {
+                 (*it)->destroy(*this);
+                 GameObject* obj = *it;
+                 it = debris.erase(it);
+                 delete (obj);
+              }
+              else
+                 ++it;
+           }
 	}
-
+        
 	{
-		list<Ship*>::iterator pit = players.begin();
-		while (pit != players.end())
-		{
-			if ((*pit)->transform.getCollided())
-			{
-				(*pit)->destroy(*this);
-				lives--;
-				if (lives)
-				{
-					spawnTime = SPAWNTIME;
-					(*pit)->transform.setCollided(false);
-					(*pit)->transform.setX(0);
-					(*pit)->transform.setY(0);
-					(*pit)->transform.setDX(0);
-					(*pit)->transform.setDY(0);
-				}
-			}
-			else
-				++pit;
-		}
+           vector<Ship*>::iterator pit = players.begin();
+           while (pit != players.end())
+           {
+              if ((*pit)->transform.getCollided())
+              {
+                 (*pit)->destroy(*this);
+                 lives--;
+                 if (lives)
+                 {
+                    spawnTime = SPAWNTIME;
+                    (*pit)->transform.setCollided(false);
+                    (*pit)->transform.setX(0);
+                    (*pit)->transform.setY(0);
+                    (*pit)->transform.setDX(0);
+                    (*pit)->transform.setDY(0);
+                 }
+              }
+              else
+                 ++pit;
+           }
 	}   
 }
 

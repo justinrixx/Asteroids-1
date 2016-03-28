@@ -8,8 +8,8 @@
 *    This file contains the class declarations for the Asteroids Class.
 ************************************************************************/
 
-#ifndef ASTEROIDS_H
-#define ASTEROIDS_H
+#ifndef ASTEROIDS_SERVER_H
+#define ASTEROIDS_SERVER_H
 
 #include <vector>
 #include <list>
@@ -23,7 +23,7 @@ using namespace std;
 class Asteroids
 {
   public:
-  Asteroids(int numPlayers) : ship(), difficulty(0), score(0), missileTime(0), lives(3), spawnTime(0) 
+  Asteroids(int numPlayers) : difficulty(0), score(0), missileTime(0), lives(3), spawnTime(0) 
   { 
 	  for (int i = 0; i < numPlayers; ++i)
 		  players.push_back(new Ship());
@@ -35,7 +35,7 @@ class Asteroids
    list<GameObject*> asteroids;
    list<GameObject*> bullets;
    list<GameObject*> debris;
-   list<Ship *> players;
+   vector<Ship *> players;
 
    int score;
    int lives;
