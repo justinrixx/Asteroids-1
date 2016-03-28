@@ -53,7 +53,7 @@ void listen()
     list<GameObject *> bullets;
     list<GameObject *> asteroids;
     list<GameObject *> debris;
-    list<GameObject *> players;
+    list<Ship *> players;
 
     bzero(tempBuffer, 5);
     read(sockfd, tempBuffer, 4);
@@ -75,8 +75,8 @@ void listen()
       {
         case PLAYER:
         {
-          obj = new Ship();
-          players.push_back(obj);
+          Ship * pship = new Ship();
+          players.push_back(pship);
           break;
         }
         case BULLET:
