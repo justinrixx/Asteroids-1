@@ -37,6 +37,7 @@ char tempBuffer[5] = {0, 0, 0, 0, 0};
 
 // SYNCHRONIZATION STUFF
 pthread_mutex_t mutex;
+Asteroids *pAsteroids;
 
 /**********************************************************************
  * What the thread does forever while the game is running. Get input
@@ -52,7 +53,7 @@ void listen()
     list<GameObject *> bullets;
     list<GameObject *> asteroids;
     list<GameObject *> debris;
-    list<GameObject *> players;
+    list<Ship *> players;
 
     bzero(tempBuffer, 5);
     read(sockfd, tempBuffer, 4);
@@ -74,8 +75,8 @@ void listen()
       {
         case PLAYER:
         {
-          obj = new Ship();
-          players.push_back(obj);
+          Ship * pship = new Ship();
+          players.push_back(pship);
           break;
         }
         case BULLET:
@@ -145,8 +146,7 @@ void listen()
 
     // CRITICAL SECTION
     pthread_mutex_lock(&mutex);
-    // TODO set the state
-    // TODO set the score and numLives
+    pAsteroids->setState(asteroids, bullets, debris, players, score, numLives);
     pthread_mutex_unlock(&mutex);
   }
 }
@@ -158,7 +158,7 @@ void listen()
  **********************************************************************/
 void callBack(const Interface *pUI, void *p)
 {
-   Asteroids *pAsteroids = (Asteroids *)p;
+   pAsteroids = (Asteroids *)p;
 
    // send the user's input to the server
    inputs[0] = pUI->isUp();

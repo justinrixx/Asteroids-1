@@ -40,10 +40,10 @@ deault:
 
 ## SERVER STUFF
 server: asteroids-server.h gameObjects.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o
-	g++ -o server server.cpp asteroids-server.h gameObjects.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o -lglut -lGLU -lGL -lpthread
+	g++ -o server server.cpp asteroids-server.h gameObjects.o transform.o asteroids-server.o uiInteract.o uiDraw.o ai.o -lglut -lGLU -lGL -lpthread
 
-asteroids-server.h: gameObjects.o asteroids.o
-	g++ -c asteroids-server.cpp gameObjects.o asteroids.o
+asteroids-server.o: gameObjects.o asteroids-server.o
+	g++ -c asteroids-server.cpp gameObjects.o asteroids-server.o
 
 ## CLIENT STUFF
 client: client.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o

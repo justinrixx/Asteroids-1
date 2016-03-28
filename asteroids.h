@@ -23,14 +23,26 @@ using namespace std;
 class Asteroids
 {
   public:
-  Asteroids() : ship(), difficulty(0), score(0), missileTime(0), lives(3), spawnTime(0) { newWave(); };
+  Asteroids() : difficulty(0), score(0), missileTime(0), lives(3), spawnTime(0) { newWave(); };
    void operator ++ (int postfix);
    void shipInput(int left, int right, int up, int down, bool space);
    list<GameObject*> asteroids;
    list<GameObject*> bullets;
    list<GameObject*> debris;
+   list<Ship *> players;
+
+   void setState(list<GameObject *> rocks, list<GameObject *> bullets, list<GameObject *> debris, list<Ship *> players, int score, int numLives)
+   {
+      this->asteroids = rocks;
+      this->bullets = bullets;
+      this->debris = debris;
+      this->players = players;
+
+      this->score = score;
+      this->lives = numLives;
+   }
+
   private:
-   Ship ship;
    void newWave();
    int difficulty;
    int score;
