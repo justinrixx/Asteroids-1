@@ -126,6 +126,8 @@ void listen()
           asteroids.push_back(obj);
           break;
         }
+      default:
+	cerr << "Type not recognized" << endl;
       }
 
       // set all the members
