@@ -208,7 +208,7 @@ void Asteroids::wrap()
       }
    }
 
-   for (list<Ship *>::const_iterator it; it != players.end(); ++it)
+   for (list<Ship *>::const_iterator it = players.begin(); it != players.end(); ++it)
    {
       if ((*it)->transform.getBounds())
       {
