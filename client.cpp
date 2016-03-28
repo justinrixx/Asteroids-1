@@ -167,14 +167,20 @@ void callBack(const Interface *pUI, void *p)
    inputs[3] = pUI->isDown();
    inputs[4] = pUI->isSpace();
 
+   int n = write(sockfd, inputs, 5);
+   if (n < 0)
+     cerr << "Error writing" << endl;
+
    // Advance the Game
    pthread_mutex_lock(&mutex);
    (*pAsteroids)++;
    pthread_mutex_unlock(&mutex);
 
+   /*
    // Rotate the ship
    pAsteroids->shipInput(pUI->isLeft(), pUI->isRight(), pUI->isUp(),
                     pUI->isDown(), pUI->isSpace());
+   */
 }
 
 void error(string mess) {

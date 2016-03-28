@@ -2,6 +2,7 @@
 	SERVER SIDE
 */
 
+#include <unistd.h>
 #include <iostream>
 #include <cstdlib>
 #include <cerrno>
