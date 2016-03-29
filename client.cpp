@@ -43,13 +43,15 @@ Asteroids *pAsteroids;
  * What the thread does forever while the game is running. Get input
  * from the server, serialize it, then reset the game state
  **********************************************************************/
-void listen()
+void * listen(void * unused)
 {
   int numChunks = 0;
 
   float buffer[BUFFER_SIZE];
   while (true)
   {
+    cerr << "Beginning of while loop" << endl;
+    
     list<GameObject *> bullets;
     list<GameObject *> asteroids;
     list<GameObject *> debris;
@@ -77,54 +79,63 @@ void listen()
         {
           Ship * pship = new Ship();
           players.push_back(pship);
+	  cerr << "Ship" << endl;
           break;
         }
         case BULLET:
         {
           obj = new Bullet();
           bullets.push_back(obj);
+	  cerr << "Bullet" << endl;
           break;
         }
         case SMALL_ASTEROID:
         {
           obj = new AsteroidS();
           asteroids.push_back(obj);
+	  cerr << "Small Rock" << endl;
           break;
         }
         case MED_ASTEROID:
         {
           obj = new AsteroidM();
           asteroids.push_back(obj);
+	  cerr << "Med Rock" << endl;
           break;
         }
         case LARGE_ASTEROID:
         {
           obj = new AsteroidL();
           asteroids.push_back(obj);
+	  cerr << "Large Rock" << endl;
           break;
         }
         case MISSILE:
         {
           obj = new Missile();
           bullets.push_back(obj);
+	  cerr << "Missile" << endl;
           break;
         }
         case DEBRIS:
         {
           obj = new Debris();
           debris.push_back(obj);
+	  cerr << "Debris" << endl;
           break;
         }
         case DESTROYER:
         {
           obj = new Destroyer();
           asteroids.push_back(obj);
+	  cerr << "Destroyer" << endl;
           break;
         }
         case SAUCER:
         {
           obj = new Saucer();
           asteroids.push_back(obj);
+	  cerr << "Saucer" << endl;
           break;
         }
       default:
@@ -242,14 +253,26 @@ int main(int argc, char **argv)
     n = read(sockfd, buffer, 2);
   } while (buffer[0] != '1');
 
+  cerr << "Done lockstep" << endl;
+
   // DONE LOCKSTEP
 
    // Start the drawing
    Interface ui(argc, argv, "Asteroids");
 
+   // start the thread
+   pthread_t listen_thread;
+   int id = pthread_create(&listen_thread, NULL, listen, NULL);
+
+   if (id < 0)
+     cerr << "Error creating thread" << endl;
+   
    // play the game.  Our function callback will get called periodically
    Asteroids asteroids;
    ui.run(callBack, (void *)&asteroids);
+
+   // end the thread
+   pthread_join(listen_thread, NULL);
 
    return 0;
 }

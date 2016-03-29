@@ -47,7 +47,7 @@ asteroids-server.o: gameObjects.o asteroids-server.o
 
 ## CLIENT STUFF
 client: client.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o
-	g++ -o client client.o transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL
+	g++ -o client client.o transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL -pthread
 
 #######################################################################
 # Seperately compiled files
