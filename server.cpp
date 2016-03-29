@@ -40,38 +40,61 @@ struct PlayerInput
 };
 
 
+/*********************************************
+ * Writes to all the players
+ *********************************************/
+void writeAll(const void * info, int size, const vector<PlayerInput *> & players)
+{
+   for (int i = 0; i < players.size(); ++i) {
+      write(players[i]->fd, &info, size);
+   }
+}
+
+void writeAllGameObject(const list<GameObject *> & goList, const vector<PlayerInput *> & players)
+{
+   // for every player
+   for (int i = 0; i < players.size(); ++i) {
+
+      // for every game object...
+      for (list<GameObject*>::const_iterator it = goList.begin(); it != goList.end(); ++it)
+      {
+         float * dat = (*it)->toBytes();
+
+         for (int i = 0; i < players.size(); ++i)
+
+            // NOTE: Hard coded value, 7! It happened to be the same everywhere
+            write(players[i]->fd, dat, 7 * sizeof(float));
+
+         delete [] dat;
+      }
+   }
+}
+
 /* 
 	Writes the current game state to each of the player's file descriptors
 */
 void writeGameState(const Asteroids & asteroids, const vector<PlayerInput *> & players)
 {
-   // total "chunks"
-   int total = asteroids.asteroids.size() + asteroids.bullets.size() + asteroids.debris.size() + players.size();
-   for (int i = 0; i < players.size(); ++i)
-      write(players[i]->fd, &total, 4);
+   int total = asteroids.asteroids.size() 
+               + asteroids.bullets.size() 
+               + asteroids.debris.size() 
+               + players.size();
+
+   writeAll(&total, 4, players);
    
    // send all of the chunks
-   for (list<GameObject*>::const_iterator it = asteroids.asteroids.begin(); it != asteroids.asteroids.end(); ++it)
-   {
-      float * dat = (*it)->toBytes();
-      for (int i = 0; i < players.size(); ++i)
-         write(players[i]->fd, dat, 7 * sizeof(float));
-      delete [] dat;
-   }
-   for (list<GameObject*>::const_iterator it = asteroids.bullets.begin(); it != asteroids.bullets.end(); ++it)
-   {
-      float * dat = (*it)->toBytes();
-      for (int i = 0; i < players.size(); ++i)
-         write(players[i]->fd, dat, 7 * sizeof(float));
-      delete [] dat;
-   }
-   for (list<GameObject*>::const_iterator it = asteroids.debris.begin(); it != asteroids.debris.end(); ++it)
-   {
-      float * dat = (*it)->toBytes();
-      for (int i = 0; i < players.size(); ++i)
-         write(players[i]->fd, dat, 7 * sizeof(float));
-      delete [] dat;
-   }
+   cerr << "Sending each chunk..." << endl;
+
+   cerr << " Sending the asteroids... " <<  endl;
+   writeAllGameObject(asteroids.asteroids, players);
+
+   cerr << " Sending the Bullets... " <<  endl;
+   writeAllGameObject(asteroids.bullets, players);
+
+   cerr << " Sending the Debris... " <<  endl;
+   writeAllGameObject(asteroids.debris, players);
+
+   cerr << " Sending the Players... " <<  endl;
    for (vector<Ship*>::const_iterator it = asteroids.players.begin(); it != asteroids.players.end(); ++it)
    {
       float * dat = (*it)->toBytes();
@@ -81,12 +104,10 @@ void writeGameState(const Asteroids & asteroids, const vector<PlayerInput *> & p
    }
    
    // score
-   for (int i = 0; i < players.size(); ++i)
-      write(players[i]->fd, &asteroids.score, sizeof(int));
+   cerr << " Sending the score... " <<  endl;
+   writeAll(&asteroids.score, sizeof(int), players);
    
-   // num lives
-   for (int i = 0; i < players.size(); ++i)
-      write(players[i]->fd, &asteroids.lives, sizeof(int));
+   writeAll(&asteroids.lives, sizeof(int), players);
 }
 
 /*******************************************************************
