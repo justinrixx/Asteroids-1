@@ -46,7 +46,7 @@ struct PlayerInput
 void writeAll(const void * info, int size, const vector<PlayerInput *> & players)
 {
    for (int i = 0; i < players.size(); ++i) {
-      write(players[i]->fd, &info, size);
+      write(players[i]->fd, info, size);
    }
 }
 
@@ -80,10 +80,9 @@ void writeGameState(const Asteroids & asteroids, const vector<PlayerInput *> & p
                + asteroids.debris.size() 
                + players.size();
 
-   writeAll(&total, 4, players);
-   
-   // send all of the chunks
-   cerr << "Sending each chunk..." << endl;
+
+   cerr << "Sending Total" << endl;
+   writeAll(&total, 1, players);
 
    cerr << " Sending the asteroids... " <<  endl;
    writeAllGameObject(asteroids.asteroids, players);
@@ -203,6 +202,7 @@ int main(int argc, char **argv)
 	// Accept Client 2
 	clilen2 = sizeof(cli_addr2);
 	clifd2 = accept(sockfd, (struct sockaddr *) &cli_addr2, &clilen2);
+
 	if (clifd2 < 0)
 		error(strerror(errno));
 	players[1]->fd = clifd2; 
@@ -242,8 +242,13 @@ int main(int argc, char **argv)
            // Handle Player Input
            for (int i = 0; i < 2; ++i)
            {
-              asteroids.shipInput(i, players[i]->left, players[i]->right, players[i]->up,
-                                  players[i]->down, players[i]->space);
+              asteroids.shipInput(
+		    i,
+		    players[i]->left,
+		    players[i]->right, 
+		    players[i]->up,
+		    players[i]->down,
+		    players[i]->space);
            }
            
            // Write the game state

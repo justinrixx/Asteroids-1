@@ -80,4 +80,4 @@ transform.o: transform.cpp transform.h point.h
 # Extra Stuff
 #######################################################################
 clean:
-	rm *.o *.out
+	rm *.o server client *.gch

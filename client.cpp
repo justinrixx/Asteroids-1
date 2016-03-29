@@ -58,19 +58,26 @@ void * listen(void * unused)
     list<Ship *> players;
 
     bzero(tempBuffer, 5);
-    read(sockfd, tempBuffer, 4);
+
+    cerr << "Waiting to get chunk counts..." << endl;
+    read(sockfd, tempBuffer, 1);
 
     // get the number of chunks
     numChunks = tempBuffer[0];
 
+    cerr << "got this many chunks:" << numChunks << endl;
     // inflate the right types
     for (int i = 0; i < numChunks; i++)
     {
+      cerr << "chunk " << i << endl;
+
       bzero(buffer, B_S_PLUS_1);
       read(sockfd, buffer, (BUFFER_SIZE - 1) * sizeof(float));
 
       TYPE type = (TYPE)(buffer[6]);
       GameObject * obj;
+
+      bool isPlayer = false;
 
       // Inflate the correct type of object
       switch (type)
@@ -78,8 +85,13 @@ void * listen(void * unused)
         case PLAYER:
         {
           Ship * pship = new Ship();
+          pship->fromBytes(buffer);
+
           players.push_back(pship);
 	  cerr << "Ship" << endl;
+
+          isPlayer = true;
+
           break;
         }
         case BULLET:
@@ -143,7 +155,10 @@ void * listen(void * unused)
       }
 
       // set all the members
-      obj->fromBytes(buffer);
+      if (!isPlayer) 
+      {
+        obj->fromBytes(buffer);
+      }
     }
 
     // get the score and lives number
@@ -156,9 +171,13 @@ void * listen(void * unused)
     int numLives = (int)(tempBuffer)[0];
 
     // CRITICAL SECTION
+    cerr << " Locking to set state... " <<  endl;
+
     pthread_mutex_lock(&mutex);
     pAsteroids->setState(asteroids, bullets, debris, players, score, numLives);
     pthread_mutex_unlock(&mutex);
+
+    cerr << "Unlocked" <<  endl;
   }
 }
 
@@ -249,6 +268,7 @@ int main(int argc, char **argv)
   // wait for the go signal
   do
   {
+    cerr << " Waiting for go signall... " <<  endl;
     bzero(buffer, 2);
     n = read(sockfd, buffer, 2);
   } while (buffer[0] != '1');
@@ -259,6 +279,8 @@ int main(int argc, char **argv)
 
    // Start the drawing
    Interface ui(argc, argv, "Asteroids");
+   cerr << "Interface drawing...";
+
 
    // start the thread
    pthread_t listen_thread;
@@ -269,10 +291,13 @@ int main(int argc, char **argv)
    
    // play the game.  Our function callback will get called periodically
    Asteroids asteroids;
+   cerr << "Running ui...";
    ui.run(callBack, (void *)&asteroids);
 
    // end the thread
+   cerr << "Waiting for Pthread to join...";
    pthread_join(listen_thread, NULL);
+   cerr << "Pthread joined.";
 
    return 0;
 }
