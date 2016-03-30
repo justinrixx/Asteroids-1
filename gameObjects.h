@@ -19,6 +19,7 @@
 #include <vector>
 #include <cmath>
 #include "ai.h"
+
 using namespace std;
 
 #define PI 3.14159265
@@ -53,7 +54,7 @@ class GameObject
 	float getValue() const { return value; };
 	float * toBytes();
 	Transform transform;
-        virtual int getType () = 0;
+        virtual TYPE getType () = 0;
   protected:
 	float value; //The lower the value the better
 };
@@ -69,8 +70,8 @@ class Ship : public GameObject
    void advance(int left, int right, int up, int down);
    virtual void increment(Asteroids & asteroids);
    virtual void destroy(Asteroids & asteroids);
-   virtual int getType () {
-     return SHIP;
+   virtual TYPE getType () {
+     return PLAYER;
    }
 };
 
@@ -92,7 +93,7 @@ class Saucer : public Enemy
    virtual void increment(Asteroids & asteroids);
    virtual void destroy(Asteroids & asteroids);
 
-   virtual int getType () {
+   virtual TYPE getType () {
      return SAUCER;
    }
 
@@ -112,7 +113,7 @@ class Destroyer : public Enemy
    virtual void increment(Asteroids & asteroids);
    virtual void destroy(Asteroids & asteroids);
 
-   virtual int getType () {
+   virtual TYPE getType () {
      return DESTROYER;
    }
 
@@ -131,7 +132,7 @@ class AsteroidS : public Enemy
    virtual void draw();
    virtual void increment(Asteroids & asteroids);
    virtual void destroy(Asteroids & asteroids);
-   virtual int getType () {
+   virtual TYPE getType () {
      return SMALL_ASTEROID;
    }
 };
@@ -145,7 +146,7 @@ class AsteroidM : public Enemy
    virtual void draw();
    virtual void increment(Asteroids & asteroids);
    virtual void destroy(Asteroids & asteroids);
-   virtual int getType () {
+   virtual TYPE getType () {
      return MED_ASTEROID;
    }
 };
@@ -158,7 +159,7 @@ class AsteroidL : public Enemy
    virtual void draw();
    virtual void increment(Asteroids & asteroids);
    virtual void destroy(Asteroids & asteroids);
-   virtual int getType () {
+   virtual TYPE getType () {
      return LARGE_ASTEROID;
    }
 };
@@ -173,7 +174,7 @@ class Bullet : public GameObject
    virtual void draw();
    virtual void increment(Asteroids & asteroids);
    virtual void destroy(Asteroids & asteroids);
-   virtual int getType () {
+   virtual TYPE getType () {
      return BULLET;
    }
   private:
@@ -189,7 +190,7 @@ class Missile : public GameObject
    virtual void draw();
    virtual void increment(Asteroids & asteroids);
    virtual void destroy(Asteroids & asteroids);
-   virtual int getType () {
+   virtual TYPE getType () {
      return MISSILE;
    }
   private:
@@ -207,7 +208,7 @@ class Debris : public GameObject
    virtual void draw();
    virtual void increment(Asteroids & asteroids);
    virtual void destroy(Asteroids & asteroids);
-   virtual int getType () {
+   virtual TYPE getType () {
      return DEBRIS;
    }
   private:

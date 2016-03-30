@@ -55,18 +55,19 @@ void writeAllGameObject(const list<GameObject *> & goList, const vector<PlayerIn
    // for every player
    for (int i = 0; i < players.size(); ++i) {
 
+     cerr << "player " << i << endl;
+
       // for every game object...
       for (list<GameObject*>::const_iterator it = goList.begin(); it != goList.end(); ++it)
       {
-         int type = (*it)->getType();
+         TYPE type = (*it)->getType();
          float * dat = (*it)->toBytes();
 
-         for (int i = 0; i < players.size(); ++i)
-         {
-            // NOTE: Hard coded value, 7! It happened to be the same everywhere
-            write(players[i]->fd, &type, sizeof(int));
-            write(players[i]->fd, dat, 6 * sizeof(float));
-         }
+	 cerr << "type: " << type << endl;
+
+	 // NOTE: Hard coded value, 7! It happened to be the same everywhere
+	 write(players[i]->fd, &type, sizeof(TYPE));
+	 write(players[i]->fd, dat, 6 * sizeof(float));
 
          delete [] dat;
       }
@@ -87,20 +88,22 @@ void writeGameState(const Asteroids & asteroids, const vector<PlayerInput *> & p
    cerr << "Sending Total: "  << total << endl;
    writeAll(&total, sizeof(int), players);
 
-   cerr << " Sending the asteroids... " <<  endl;
+   cerr << " Sending the asteroids... " << asteroids.asteroids.size() <<  endl;
    writeAllGameObject(asteroids.asteroids, players);
 
-   cerr << " Sending the Bullets... " <<  endl;
+   cerr << " Sending the Bullets... " << asteroids.bullets.size() << endl;
    writeAllGameObject(asteroids.bullets, players);
 
-   cerr << " Sending the Debris... " <<  endl;
+   cerr << " Sending the Debris... " << asteroids.debris.size() << endl;
    writeAllGameObject(asteroids.debris, players);
 
-   cerr << " Sending the Players... " <<  endl;
+   cerr << " Sending the Players... " << asteroids.players.size() << endl;
    for (vector<Ship*>::const_iterator it = asteroids.players.begin(); it != asteroids.players.end(); ++it)
    {
-      int type = (*it)->getType();
+      TYPE type = (*it)->getType();
       float * dat = (*it)->toBytes();
+
+      cerr << "type: " << type << endl;
       for (int i = 0; i < players.size(); ++i)
       {
          write(players[i]->fd, &type, sizeof(int));
@@ -110,9 +113,10 @@ void writeGameState(const Asteroids & asteroids, const vector<PlayerInput *> & p
    }
    
    // score
-   cerr << " Sending the score... " <<  endl;
+   cerr << " Sending the score... " << asteroids.score <<  endl;
    writeAll(&asteroids.score, sizeof(int), players);
-   
+
+   cerr << "numLives: " << asteroids.lives << endl;
    writeAll(&asteroids.lives, sizeof(int), players);
 }
 

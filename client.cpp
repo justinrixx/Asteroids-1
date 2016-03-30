@@ -52,10 +52,10 @@ void * listen(void * unused)
   {
     cerr << "Beginning of while loop" << endl;
     
-    list<GameObject *> bullets;
-    list<GameObject *> asteroids;
-    list<GameObject *> debris;
-    list<Ship *> players;
+    list<GameObject *> * bullets = new list<GameObject *>;
+    list<GameObject *> * asteroids = new list<GameObject *>;
+    list<GameObject *> * debris = new list<GameObject *>;
+    list<Ship *> * players = new list<Ship *>;
 
     bzero(tempBuffer, 5);
 
@@ -63,16 +63,18 @@ void * listen(void * unused)
     read(sockfd, tempBuffer, sizeof(int));
 
     // get the number of chunks
-    numChunks = tempBuffer[0];
+    numChunks = ((int *)(tempBuffer))[0];
 
     cerr << "get this many chunks:" << numChunks << endl;
     // inflate the right types
     for (int i = 0; i < numChunks; i++)
     {
-       bzero(tempBuffer, 5);
-       read(sockfd, tempBuffer, sizeof(int));
+      // get the type
+      bzero(tempBuffer, 5);
+      read(sockfd, tempBuffer, sizeof(TYPE));
 
-       TYPE type = (TYPE)(tempBuffer[0]);
+      TYPE type = ((TYPE *)(tempBuffer))[0];
+      cerr << "type: " << type << endl;
        
       cerr << "chunk " << i << endl;
 
@@ -91,7 +93,7 @@ void * listen(void * unused)
           Ship * pship = new Ship();
           pship->fromBytes(buffer);
 
-          players.push_back(pship);
+          players->push_back(pship);
 	  cerr << "Ship" << endl;
 
           isPlayer = true;
@@ -101,56 +103,56 @@ void * listen(void * unused)
         case BULLET:
         {
           obj = new Bullet();
-          bullets.push_back(obj);
+          bullets->push_back(obj);
 	  cerr << "Bullet" << endl;
           break;
         }
         case SMALL_ASTEROID:
         {
           obj = new AsteroidS();
-          asteroids.push_back(obj);
+          asteroids->push_back(obj);
 	  cerr << "Small Rock" << endl;
           break;
         }
         case MED_ASTEROID:
         {
           obj = new AsteroidM();
-          asteroids.push_back(obj);
+          asteroids->push_back(obj);
 	  cerr << "Med Rock" << endl;
           break;
         }
         case LARGE_ASTEROID:
         {
           obj = new AsteroidL();
-          asteroids.push_back(obj);
+          asteroids->push_back(obj);
 	  cerr << "Large Rock" << endl;
           break;
         }
         case MISSILE:
         {
           obj = new Missile();
-          bullets.push_back(obj);
+          bullets->push_back(obj);
 	  cerr << "Missile" << endl;
           break;
         }
         case DEBRIS:
         {
           obj = new Debris();
-          debris.push_back(obj);
+          debris->push_back(obj);
 	  cerr << "Debris" << endl;
           break;
         }
         case DESTROYER:
         {
           obj = new Destroyer();
-          asteroids.push_back(obj);
+          asteroids->push_back(obj);
 	  cerr << "Destroyer" << endl;
           break;
         }
         case SAUCER:
         {
           obj = new Saucer();
-          asteroids.push_back(obj);
+          asteroids->push_back(obj);
 	  cerr << "Saucer" << endl;
           break;
         }
@@ -168,17 +170,26 @@ void * listen(void * unused)
     // get the score and lives number
     bzero(tempBuffer, 5);
     read(sockfd, tempBuffer, sizeof(int));
-    int score = (int)(tempBuffer)[0];
+    int score = ((int *)(tempBuffer))[0];
+
+    cerr << "score: " << score << endl;
 
     bzero(tempBuffer, 5);
     read(sockfd, tempBuffer, sizeof(int));
-    int numLives = (int)(tempBuffer)[0];
+    int numLives = ((int *)(tempBuffer))[0];
+
+    cerr << "numLives: " << numLives << endl;
 
     // CRITICAL SECTION
     cerr << " Locking to set state... " <<  endl;
 
     pthread_mutex_lock(&mutex);
-    pAsteroids->setState(asteroids, bullets, debris, players, score, numLives);
+    //pAsteroids->setState(asteroids, bullets, debris, players, score, numLives);
+    pAsteroids->asteroids = *asteroids;
+    pAsteroids->bullets = *bullets;
+    pAsteroids->debris = *debris;
+    pAsteroids->players = *players;
+    // todo score numlives
     pthread_mutex_unlock(&mutex);
 
     cerr << "Unlocked" <<  endl;
@@ -270,7 +281,7 @@ int main(int argc, char **argv)
   {
     cerr << " Waiting for go signall... " <<  endl;
     bzero(buffer, 2);
-    n = read(sockfd, buffer, 2);
+    n = read(sockfd, buffer, 1);
   } while (buffer[0] != '1');
 
   cerr << "Done lockstep" << endl;

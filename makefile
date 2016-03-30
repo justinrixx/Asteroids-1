@@ -58,7 +58,7 @@ bytesTest: bytesTest.cpp transform.o gameEnum.o gameObjects.o asteroids.o uiDraw
 #######################################################################
 # Seperately compiled files
 #######################################################################
-client.o:asteroids.cpp asteroids.h gameObjects.cpp gameObjects.h
+client.o:asteroids.cpp asteroids.h client.cpp gameObjects.cpp gameObjects.h
 	g++ client.cpp -c -lpthread
 
 uiInteract.o: uiInteract.h uiInteract.cpp
