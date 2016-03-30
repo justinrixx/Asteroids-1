@@ -55,15 +55,11 @@ void writeAllGameObject(const list<GameObject *> & goList, const vector<PlayerIn
    // for every player
    for (int i = 0; i < players.size(); ++i) {
 
-     cerr << "player " << i << endl;
-
       // for every game object...
       for (list<GameObject*>::const_iterator it = goList.begin(); it != goList.end(); ++it)
       {
          TYPE type = (*it)->getType();
          float * dat = (*it)->toBytes();
-
-	 cerr << "type: " << type << endl;
 
 	 // NOTE: Hard coded value, 7! It happened to be the same everywhere
 	 write(players[i]->fd, &type, sizeof(TYPE));
@@ -83,21 +79,15 @@ void writeGameState(const Asteroids & asteroids, const vector<PlayerInput *> & p
                + asteroids.bullets.size() 
                + asteroids.debris.size() 
                + players.size();
-
-
-   cerr << "Sending Total: "  << total << endl;
+   
    writeAll(&total, sizeof(int), players);
 
-   cerr << " Sending the asteroids... " << asteroids.asteroids.size() <<  endl;
    writeAllGameObject(asteroids.asteroids, players);
 
-   cerr << " Sending the Bullets... " << asteroids.bullets.size() << endl;
    writeAllGameObject(asteroids.bullets, players);
 
-   cerr << " Sending the Debris... " << asteroids.debris.size() << endl;
    writeAllGameObject(asteroids.debris, players);
 
-   cerr << " Sending the Players... " << asteroids.players.size() << endl;
    for (vector<Ship*>::const_iterator it = asteroids.players.begin(); it != asteroids.players.end(); ++it)
    {
       TYPE type = (*it)->getType();
@@ -113,10 +103,7 @@ void writeGameState(const Asteroids & asteroids, const vector<PlayerInput *> & p
    }
    
    // score
-   cerr << " Sending the score... " << asteroids.score <<  endl;
    writeAll(&asteroids.score, sizeof(int), players);
-
-   cerr << "numLives: " << asteroids.lives << endl;
    writeAll(&asteroids.lives, sizeof(int), players);
 }
 
@@ -128,13 +115,9 @@ void *playerInputHandler(void *param)
    PlayerInput * player = (PlayerInput *)param;
    
    bool buffer [PLAYER_BUFFER_SIZE + 1];
-
-   cerr << "Starting player input handlder..." << endl;
    
    while (true)
-   {
-      cerr << "Start input read..." << endl;
-      
+   {  
       //Get the input from the players fd
       bzero(buffer, PLAYER_BUFFER_SIZE + 1);
       int n = read(player->fd, buffer, PLAYER_BUFFER_SIZE);
@@ -150,8 +133,6 @@ void *playerInputHandler(void *param)
       
       //release the locks     
       pthread_mutex_unlock(&(player->mutex));
-
-      cerr << "End input read..." << endl;
    }
 }
 
@@ -171,19 +152,27 @@ void error(const char* msg)
 int main(int argc, char **argv)
 {
 	int port = 0;
-
+        int numPlayers = 1;
+        
 	if (argc > 1)
 	{
-		port = atoi(argv[1]);
+           port = atoi(argv[1]);
 	}
+        if (argc > 2)
+        {
+           numPlayers = atoi(argv[2]);
+        }
 	else
-		error("no port number specified");
+           error("no port number specified");
 
 	int sockfd, clifd1, clifd2, portno;
 	socklen_t clilen1, clilen2;
 	char buffer[2];
 	struct sockaddr_in serv_addr, cli_addr1, cli_addr2;
 	int n;
+        socklen_t clilen;
+        int clifd;
+        struct sockaddr_in cli_addr;
 
 	// create the socket
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -205,59 +194,66 @@ int main(int argc, char **argv)
 	listen(sockfd, 5);
 
 	//Set up Players
-	vector<PlayerInput *> players(2);
-	players[0] = new PlayerInput();
-	players[1] = new PlayerInput();
+	vector<PlayerInput *> players(numPlayers);
+        for (int i = 0; i < numPlayers; ++i)
+           players[i] = new PlayerInput();
 
 	// Accept Client 1
-	clilen1 = sizeof(cli_addr1);
-	clifd1 = accept(sockfd, (struct sockaddr *) &cli_addr1, &clilen1);
-	if (clifd1 < 0)
-		error(strerror(errno));
-	players[0]->fd = clifd1;
+        for (int i = 0; i < numPlayers; ++i)
+        {
+           clilen = sizeof(cli_addr);
+           clifd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+           if (clifd < 0)
+              error(strerror(errno));
+           players[i]->fd = clifd;
+        }
+	//clilen1 = sizeof(cli_addr1);
+	//clifd1 = accept(sockfd, (struct sockaddr *) &cli_addr1, &clilen1);
+	//if (clifd1 < 0)
+	//	error(strerror(errno));
+	//players[0]->fd = clifd1;
 	
 	// Accept Client 2
-	clilen2 = sizeof(cli_addr2);
-	clifd2 = accept(sockfd, (struct sockaddr *) &cli_addr2, &clilen2);
-
-	if (clifd2 < 0)
-		error(strerror(errno));
-	players[1]->fd = clifd2; 
+	//clilen2 = sizeof(cli_addr2);
+	//clifd2 = accept(sockfd, (struct sockaddr *) &cli_addr2, &clilen2);
+	//if (clifd2 < 0)
+	//	error(strerror(errno));
+	//players[1]->fd = clifd2;
+        
 
 	// Write back to the players that the game has started
-	n = write(clifd2, "1", 1);
-	if (n < 0)
-		error("writing to the socket");
-
-	n = write(clifd1, "1", 1);
-	if (n < 0)
-		error("writing to the socket");
+        for (int i = 0; i < numPlayers; ++i)
+        {
+           n = write(players[i]->fd, "1", 1);
+           if (n < 0)
+              error("writing to the socket");
+        }
 	
 	//
 	// START THE GAME
 	//
         vector<pthread_t> threads;
 	//kick off the player input threads
-	//for (int i = 0; i < 2; ++i)
-	//{
-        //   threads.push_back(pthread_t());
-        //   if (pthread_create(&threads[threads.size() - 1], NULL,
-        //                      playerInputHandler, (void*)players[i]))
-        //   {
-        //      cout << "Error: unable to create the thread\n";
-        //      exit(-1);
-        //   }
-	//}
+	for (int i = 0; i < numPlayers; ++i)
+	{
+           threads.push_back(pthread_t());
+           if (pthread_create(&threads[threads.size() - 1], NULL,
+                              playerInputHandler, (void*)players[i]))
+           {
+              cout << "Error: unable to create the thread\n";
+              exit(-1);
+           }
+	}
 
 	//
-	Asteroids asteroids(2);
+	Asteroids asteroids(numPlayers);
         while (true)
 	{
            // Advance the Game
            asteroids++;
            
            // Handle Player Input
-           for (int i = 0; i < 2; ++i)
+           for (int i = 0; i < numPlayers; ++i)
            {
               asteroids.shipInput(
 		    i,
@@ -272,16 +268,16 @@ int main(int argc, char **argv)
            writeGameState(asteroids, players);
            
            //wait for refresh time here...
-           sleep((unsigned long) ((1.0 / 30.0) * 1000.0));
-	}
+           usleep((1.0 / 30.0) * 1000000.);
+        }
 	
 	//
 	// END THE GAME
 	//
 
 	// close the sockets
-	close(clifd1);
-	close(clifd2);
+        for (int i = 0; i < players.size(); ++i)
+           close(players[i]->fd);
 	close(sockfd);
 
 	return 0;
