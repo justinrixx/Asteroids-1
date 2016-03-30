@@ -39,13 +39,17 @@ using namespace std;
 #define DESTROYERGUNSPACE 5 //Space between guns
 #define DESTROYERGUNS 5 //Number of guns
 
+#include <iostream>
+
 class Asteroids; //forward declaration
 
 //Base Class
 class GameObject
 {
  public:
-  GameObject() : transform(), value(0) { };
+  GameObject() : transform(), value(0) {
+      cout << "in gameObject constructor" << endl;
+   };
   GameObject(const Transform & t) : transform(t), value(0) { };
 	void fromBytes(float * data); 
 	virtual void draw() = 0;

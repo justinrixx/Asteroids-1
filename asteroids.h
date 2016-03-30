@@ -42,12 +42,13 @@ class Asteroids
       this->lives = numLives;
    }
 
+   int score;
+   int lives;
+
   private:
    void newWave();
    int difficulty;
-   int score;
    int missileTime;
-   int lives;
    int spawnTime;
    void checkCollision();
    void wrap();
