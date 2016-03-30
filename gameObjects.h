@@ -47,9 +47,7 @@ class Asteroids; //forward declaration
 class GameObject
 {
  public:
-  GameObject() : transform(), value(0) {
-      cout << "in gameObject constructor" << endl;
-   };
+  GameObject() : transform(), value(0) { };
   GameObject(const Transform & t) : transform(t), value(0) { };
 	void fromBytes(float * data); 
 	virtual void draw() = 0;
