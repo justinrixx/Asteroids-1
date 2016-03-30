@@ -21,7 +21,7 @@ class GameObject;
 class AI
 {
   public:
-   AI() { }; // may break stuff
+   AI() { target = NULL; }; // may break stuff
    AI(GameObject * target) : target(target) { };
    AI(GameObject * reference, list<GameObject*> & targets) { findTarget(reference, targets); };
    void findTarget(GameObject * reference, list<GameObject*> & targets);
