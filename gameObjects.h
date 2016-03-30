@@ -53,10 +53,9 @@ class GameObject
 	float getValue() const { return value; };
 	float * toBytes();
 	Transform transform;
+        virtual int getType () = 0;
   protected:
 	float value; //The lower the value the better
-
-  virtual int getType () = 0;
 };
 
 //Ship

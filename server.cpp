@@ -58,12 +58,15 @@ void writeAllGameObject(const list<GameObject *> & goList, const vector<PlayerIn
       // for every game object...
       for (list<GameObject*>::const_iterator it = goList.begin(); it != goList.end(); ++it)
       {
+         int type = (*it)->getType();
          float * dat = (*it)->toBytes();
 
          for (int i = 0; i < players.size(); ++i)
-
+         {
             // NOTE: Hard coded value, 7! It happened to be the same everywhere
-            write(players[i]->fd, dat, 7 * sizeof(float));
+            write(players[i]->fd, &type, sizeof(int));
+            write(players[i]->fd, dat, 6 * sizeof(float));
+         }
 
          delete [] dat;
       }
@@ -71,7 +74,7 @@ void writeAllGameObject(const list<GameObject *> & goList, const vector<PlayerIn
 }
 
 /* 
-	Writes the current game state to each of the player's file descriptors
+   Writes the current game state to each of the player's file descriptors
 */
 void writeGameState(const Asteroids & asteroids, const vector<PlayerInput *> & players)
 {
@@ -81,8 +84,8 @@ void writeGameState(const Asteroids & asteroids, const vector<PlayerInput *> & p
                + players.size();
 
 
-   cerr << "Sending Total" << endl;
-   writeAll(&total, 1, players);
+   cerr << "Sending Total: "  << total << endl;
+   writeAll(&total, sizeof(int), players);
 
    cerr << " Sending the asteroids... " <<  endl;
    writeAllGameObject(asteroids.asteroids, players);
@@ -96,9 +99,13 @@ void writeGameState(const Asteroids & asteroids, const vector<PlayerInput *> & p
    cerr << " Sending the Players... " <<  endl;
    for (vector<Ship*>::const_iterator it = asteroids.players.begin(); it != asteroids.players.end(); ++it)
    {
+      int type = (*it)->getType();
       float * dat = (*it)->toBytes();
       for (int i = 0; i < players.size(); ++i)
-         write(players[i]->fd, dat, 7 * sizeof(float));
+      {
+         write(players[i]->fd, &type, sizeof(int));
+         write(players[i]->fd, dat, 6 * sizeof(float));
+      }
       delete [] dat;
    }
    
@@ -117,9 +124,13 @@ void *playerInputHandler(void *param)
    PlayerInput * player = (PlayerInput *)param;
    
    bool buffer [PLAYER_BUFFER_SIZE + 1];
+
+   cerr << "Starting player input handlder..." << endl;
    
    while (true)
    {
+      cerr << "Start input read..." << endl;
+      
       //Get the input from the players fd
       bzero(buffer, PLAYER_BUFFER_SIZE + 1);
       int n = read(player->fd, buffer, PLAYER_BUFFER_SIZE);
@@ -135,6 +146,8 @@ void *playerInputHandler(void *param)
       
       //release the locks     
       pthread_mutex_unlock(&(player->mutex));
+
+      cerr << "End input read..." << endl;
    }
 }
 
@@ -221,20 +234,20 @@ int main(int argc, char **argv)
 	//
         vector<pthread_t> threads;
 	//kick off the player input threads
-	for (int i = 0; i < 2; ++i)
-	{
-           threads.push_back(pthread_t());
-           if (pthread_create(&threads[threads.size() - 1], NULL,
-                              playerInputHandler, (void*)players[i]))
-           {
-              cout << "Error: unable to create the thread\n";
-              exit(-1);
-           }
-	}
+	//for (int i = 0; i < 2; ++i)
+	//{
+        //   threads.push_back(pthread_t());
+        //   if (pthread_create(&threads[threads.size() - 1], NULL,
+        //                      playerInputHandler, (void*)players[i]))
+        //   {
+        //      cout << "Error: unable to create the thread\n";
+        //      exit(-1);
+        //   }
+	//}
 
 	//
 	Asteroids asteroids(2);
-	while (true)
+        while (true)
 	{
            // Advance the Game
            asteroids++;
