@@ -15,6 +15,7 @@
 #include <cmath>
 #include "uiDraw.h"
 #include "point.h"
+#include <iostream>
 using namespace std;
 
 /**********************************************************************
@@ -23,12 +24,14 @@ using namespace std;
 ***********************************************************************/
 void GameObject::fromBytes(float * data)
 {
-	this->transform.getPos().setX(data[0]);
-	this->transform.getPos().setY(data[1]);
-	this->transform.setDX(data[2]);
-	this->transform.setDY(data[3]);
-	this->transform.setAngle(data[4]);
-	this->transform.setDAngle(data[5]);
+   for (int i = 0; i < 6; ++i)
+      cerr << "Data " << i << ": " << data[i] << endl;
+   
+   this->transform.setPos(data[0], data[1]);
+   this->transform.setDX(data[2]);
+   this->transform.setDY(data[3]);
+   this->transform.setAngle(data[4]);
+   this->transform.setDAngle(data[5]);
 }
 
 /**********************************************************************
