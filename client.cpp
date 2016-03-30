@@ -208,10 +208,6 @@ int main(int argc, char **argv)
 {
 
   // CONNECTION STUFF
-  int sockfd, portno;
-  struct sockaddr_in serv_addr;
-  struct hostent *server;
-
   char buffer[2]; // the message buffer
 
   if (argc < 3) {
