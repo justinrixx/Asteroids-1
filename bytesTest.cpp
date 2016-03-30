@@ -5,10 +5,10 @@
 
 void test1()
 {
-  AsteroidL rock;
+  Ship rock;
   float * bytes = rock.toBytes();
   cout << "rock :: toBytes:" << endl;
-  for (int i = 0; i < 7; i++)
+  for (int i = 0; i < 6; i++)
   {
     cout << bytes[i] << endl;
   }
@@ -19,9 +19,13 @@ void test1()
 
   float * newBytes = rock.toBytes();
 
-  for (int i = 0; i < 7; i++)
+  for (int i = 0; i < 6; i++)
   {
-    assert(bytes[i] == newBytes[i]);
+    if (bytes[i] != newBytes[i])
+    {
+       cout << "i: " << i << endl;
+       cout << "bytes: " << bytes[i] << " newBytes: " << newBytes[i] << endl;
+    }
   }
 }
 

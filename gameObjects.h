@@ -39,6 +39,8 @@ using namespace std;
 #define DESTROYERGUNSPACE 5 //Space between guns
 #define DESTROYERGUNS 5 //Number of guns
 
+#include <iostream>
+
 class Asteroids; //forward declaration
 
 //Base Class

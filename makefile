@@ -52,7 +52,7 @@ client: client.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.
 #######################################################################
 # Unit tests
 #######################################################################
-bytesTest: bytesTest.cpp transform.o gameEnum.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o
+bytesTest: bytesTest.cpp transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o
 	g++ -o bytesTest bytesTest.cpp transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL -pthread
 
 #######################################################################

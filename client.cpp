@@ -50,8 +50,6 @@ void * listen(void * unused)
   float buffer[BUFFER_SIZE];
   while (true)
   {
-    cerr << "Beginning of while loop" << endl;
-    
     list<GameObject *> * bullets = new list<GameObject *>;
     list<GameObject *> * asteroids = new list<GameObject *>;
     list<GameObject *> * debris = new list<GameObject *>;
@@ -59,13 +57,11 @@ void * listen(void * unused)
 
     bzero(tempBuffer, 5);
 
-    cerr << "Waiting to get chunk counts..." << endl;
     read(sockfd, tempBuffer, sizeof(int));
 
     // get the number of chunks
     numChunks = ((int *)(tempBuffer))[0];
 
-    cerr << "get this many chunks:" << numChunks << endl;
     // inflate the right types
     for (int i = 0; i < numChunks; i++)
     {
@@ -74,9 +70,6 @@ void * listen(void * unused)
       read(sockfd, tempBuffer, sizeof(TYPE));
 
       TYPE type = ((TYPE *)(tempBuffer))[0];
-      cerr << "type: " << type << endl;
-       
-      cerr << "chunk " << i << endl;
 
       bzero(buffer, B_S_PLUS_1);
       read(sockfd, buffer, (BUFFER_SIZE - 1) * sizeof(float));
@@ -94,7 +87,6 @@ void * listen(void * unused)
           pship->fromBytes(buffer);
 
           players->push_back(pship);
-	  cerr << "Ship" << endl;
 
           isPlayer = true;
 
@@ -104,56 +96,48 @@ void * listen(void * unused)
         {
           obj = new Bullet();
           bullets->push_back(obj);
-	  cerr << "Bullet" << endl;
           break;
         }
         case SMALL_ASTEROID:
         {
           obj = new AsteroidS();
           asteroids->push_back(obj);
-	  cerr << "Small Rock" << endl;
           break;
         }
         case MED_ASTEROID:
         {
           obj = new AsteroidM();
           asteroids->push_back(obj);
-	  cerr << "Med Rock" << endl;
           break;
         }
         case LARGE_ASTEROID:
         {
           obj = new AsteroidL();
           asteroids->push_back(obj);
-	  cerr << "Large Rock" << endl;
           break;
         }
         case MISSILE:
         {
           obj = new Missile();
           bullets->push_back(obj);
-	  cerr << "Missile" << endl;
           break;
         }
         case DEBRIS:
         {
           obj = new Debris();
           debris->push_back(obj);
-	  cerr << "Debris" << endl;
           break;
         }
         case DESTROYER:
         {
           obj = new Destroyer();
           asteroids->push_back(obj);
-	  cerr << "Destroyer" << endl;
           break;
         }
         case SAUCER:
         {
           obj = new Saucer();
           asteroids->push_back(obj);
-	  cerr << "Saucer" << endl;
           break;
         }
       default:
@@ -172,17 +156,11 @@ void * listen(void * unused)
     read(sockfd, tempBuffer, sizeof(int));
     int score = ((int *)(tempBuffer))[0];
 
-    cerr << "score: " << score << endl;
-
     bzero(tempBuffer, 5);
     read(sockfd, tempBuffer, sizeof(int));
     int numLives = ((int *)(tempBuffer))[0];
 
-    cerr << "numLives: " << numLives << endl;
-
     // CRITICAL SECTION
-    cerr << " Locking to set state... " <<  endl;
-
     pthread_mutex_lock(&mutex);
     //pAsteroids->setState(asteroids, bullets, debris, players, score, numLives);
     pAsteroids->asteroids = *asteroids;
@@ -190,9 +168,10 @@ void * listen(void * unused)
     pAsteroids->debris = *debris;
     pAsteroids->players = *players;
     // todo score numlives
+    pAsteroids->score = score;
+    pAsteroids->lives = numLives;
     pthread_mutex_unlock(&mutex);
 
-    cerr << "Unlocked" <<  endl;
   }
 }
 
@@ -279,18 +258,15 @@ int main(int argc, char **argv)
   // wait for the go signal
   do
   {
-    cerr << " Waiting for go signall... " <<  endl;
+    cerr << " Waiting for go signal... " <<  endl;
     bzero(buffer, 2);
     n = read(sockfd, buffer, 1);
   } while (buffer[0] != '1');
-
-  cerr << "Done lockstep" << endl;
 
   // DONE LOCKSTEP
 
    // Start the drawing
    Interface ui(argc, argv, "Asteroids");
-   cerr << "Interface drawing...";
 
 
    // start the thread
@@ -302,13 +278,9 @@ int main(int argc, char **argv)
    
    // play the game.  Our function callback will get called periodically
    Asteroids asteroids;
-   cerr << "Running ui...";
    ui.run(callBack, (void *)&asteroids);
 
    // end the thread
-   cerr << "Waiting for Pthread to join...";
-   pthread_join(listen_thread, NULL);
-   cerr << "Pthread joined.";
 
    return 0;
 }

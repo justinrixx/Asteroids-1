@@ -24,9 +24,6 @@ using namespace std;
 ***********************************************************************/
 void GameObject::fromBytes(float * data)
 {
-   for (int i = 0; i < 6; ++i)
-      cerr << "Data " << i << ": " << data[i] << endl;
-   
    this->transform.setPos(data[0], data[1]);
    this->transform.setDX(data[2]);
    this->transform.setDY(data[3]);
