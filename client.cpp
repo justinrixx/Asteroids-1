@@ -43,32 +43,41 @@ Asteroids *pAsteroids;
  * What the thread does forever while the game is running. Get input
  * from the server, serialize it, then reset the game state
  **********************************************************************/
-void listen()
+void * listen(void * unused)
 {
   int numChunks = 0;
 
   float buffer[BUFFER_SIZE];
   while (true)
   {
+    cerr << "Beginning of while loop" << endl;
+    
     list<GameObject *> bullets;
     list<GameObject *> asteroids;
     list<GameObject *> debris;
     list<Ship *> players;
 
     bzero(tempBuffer, 5);
-    read(sockfd, tempBuffer, 4);
+
+    cerr << "Waiting to get chunk counts..." << endl;
+    read(sockfd, tempBuffer, 1);
 
     // get the number of chunks
     numChunks = tempBuffer[0];
 
+    cerr << "got this many chunks:" << numChunks << endl;
     // inflate the right types
     for (int i = 0; i < numChunks; i++)
     {
+      cerr << "chunk " << i << endl;
+
       bzero(buffer, B_S_PLUS_1);
       read(sockfd, buffer, (BUFFER_SIZE - 1) * sizeof(float));
 
       TYPE type = (TYPE)(buffer[6]);
       GameObject * obj;
+
+      bool isPlayer = false;
 
       // Inflate the correct type of object
       switch (type)
@@ -76,61 +85,80 @@ void listen()
         case PLAYER:
         {
           Ship * pship = new Ship();
+          pship->fromBytes(buffer);
+
           players.push_back(pship);
+	  cerr << "Ship" << endl;
+
+          isPlayer = true;
+
           break;
         }
         case BULLET:
         {
           obj = new Bullet();
           bullets.push_back(obj);
+	  cerr << "Bullet" << endl;
           break;
         }
         case SMALL_ASTEROID:
         {
           obj = new AsteroidS();
           asteroids.push_back(obj);
+	  cerr << "Small Rock" << endl;
           break;
         }
         case MED_ASTEROID:
         {
           obj = new AsteroidM();
           asteroids.push_back(obj);
+	  cerr << "Med Rock" << endl;
           break;
         }
         case LARGE_ASTEROID:
         {
           obj = new AsteroidL();
           asteroids.push_back(obj);
+	  cerr << "Large Rock" << endl;
           break;
         }
         case MISSILE:
         {
           obj = new Missile();
           bullets.push_back(obj);
+	  cerr << "Missile" << endl;
           break;
         }
         case DEBRIS:
         {
           obj = new Debris();
           debris.push_back(obj);
+	  cerr << "Debris" << endl;
           break;
         }
         case DESTROYER:
         {
           obj = new Destroyer();
           asteroids.push_back(obj);
+	  cerr << "Destroyer" << endl;
           break;
         }
         case SAUCER:
         {
           obj = new Saucer();
           asteroids.push_back(obj);
+	  cerr << "Saucer" << endl;
           break;
         }
+      default:
+	cerr << "Type not recognized" << endl;
       }
 
       // set all the members
-      obj->fromBytes(buffer);
+      if (!isPlayer) 
+      {
+        obj->fromBytes(buffer);
+      }
     }
 
     // get the score and lives number
@@ -143,9 +171,13 @@ void listen()
     int numLives = (int)(tempBuffer)[0];
 
     // CRITICAL SECTION
+    cerr << " Locking to set state... " <<  endl;
+
     pthread_mutex_lock(&mutex);
     pAsteroids->setState(asteroids, bullets, debris, players, score, numLives);
     pthread_mutex_unlock(&mutex);
+
+    cerr << "Unlocked" <<  endl;
   }
 }
 
@@ -165,14 +197,20 @@ void callBack(const Interface *pUI, void *p)
    inputs[3] = pUI->isDown();
    inputs[4] = pUI->isSpace();
 
+   int n = write(sockfd, inputs, 5);
+   if (n < 0)
+     cerr << "Error writing" << endl;
+
    // Advance the Game
    pthread_mutex_lock(&mutex);
    (*pAsteroids)++;
    pthread_mutex_unlock(&mutex);
 
+   /*
    // Rotate the ship
    pAsteroids->shipInput(pUI->isLeft(), pUI->isRight(), pUI->isUp(),
                     pUI->isDown(), pUI->isSpace());
+   */
 }
 
 void error(string mess) {
@@ -230,18 +268,36 @@ int main(int argc, char **argv)
   // wait for the go signal
   do
   {
+    cerr << " Waiting for go signall... " <<  endl;
     bzero(buffer, 2);
     n = read(sockfd, buffer, 2);
   } while (buffer[0] != '1');
+
+  cerr << "Done lockstep" << endl;
 
   // DONE LOCKSTEP
 
    // Start the drawing
    Interface ui(argc, argv, "Asteroids");
+   cerr << "Interface drawing...";
 
+
+   // start the thread
+   pthread_t listen_thread;
+   int id = pthread_create(&listen_thread, NULL, listen, NULL);
+
+   if (id < 0)
+     cerr << "Error creating thread" << endl;
+   
    // play the game.  Our function callback will get called periodically
    Asteroids asteroids;
+   cerr << "Running ui...";
    ui.run(callBack, (void *)&asteroids);
+
+   // end the thread
+   cerr << "Waiting for Pthread to join...";
+   pthread_join(listen_thread, NULL);
+   cerr << "Pthread joined.";
 
    return 0;
 }

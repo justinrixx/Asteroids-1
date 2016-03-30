@@ -39,15 +39,15 @@ deault:
 ########################################################################
 
 ## SERVER STUFF
-server: asteroids-server.h gameObjects.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o
+server: asteroids-server.h gameObjects.o transform.o gameObjects.o asteroids-server.o uiInteract.o uiDraw.o ai.o
 	g++ -o server server.cpp asteroids-server.h gameObjects.o transform.o asteroids-server.o uiInteract.o uiDraw.o ai.o -lglut -lGLU -lGL -lpthread
 
 asteroids-server.o: gameObjects.o asteroids-server.o
-	g++ -c asteroids-server.cpp gameObjects.o asteroids-server.o
+	g++ -c asteroids-server.cpp gameObjects.o
 
 ## CLIENT STUFF
 client: client.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o
-	g++ -o client client.o transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL
+	g++ -o client client.o transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL -pthread
 
 #######################################################################
 # Seperately compiled files
@@ -80,4 +80,4 @@ transform.o: transform.cpp transform.h point.h
 # Extra Stuff
 #######################################################################
 clean:
-	rm *.o *.out
+	rm *.o server client *.gch
