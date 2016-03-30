@@ -21,9 +21,9 @@
 #include "gameObjects.h"
 
 #define NUM_INPUTS 6
-#define BUFFER_SIZE 8
+#define BUFFER_SIZE 7
 #define B_S_PLUS_1 BUFFER_SIZE * sizeof(float) + 1
-#define NUM_ITEMS_IN_CHUNK 7
+#define NUM_ITEMS_IN_CHUNK 6
 
 using namespace std;
 
@@ -60,25 +60,25 @@ void * listen(void * unused)
     bzero(tempBuffer, 5);
 
     cerr << "Waiting to get chunk counts..." << endl;
-    read(sockfd, tempBuffer, 4);
+    read(sockfd, tempBuffer, sizeof(int));
 
     // get the number of chunks
     numChunks = tempBuffer[0];
 
-    cerr << "got this many chunks:" << numChunks << endl;
+    cerr << "get this many chunks:" << numChunks << endl;
     // inflate the right types
     for (int i = 0; i < numChunks; i++)
     {
+       bzero(tempBuffer, 5);
+       read(sockfd, tempBuffer, sizeof(int));
+
+       TYPE type = (TYPE)(tempBuffer[0]);
+       
       cerr << "chunk " << i << endl;
 
       bzero(buffer, B_S_PLUS_1);
       read(sockfd, buffer, (BUFFER_SIZE - 1) * sizeof(float));
 
-      /*
-      if (buffer[6] >= 0.9 && buffer[6] <= 1.1)
-      type ;= TYPE_DOG;*/
-      
-      TYPE type = (TYPE)(buffer[6]);
       GameObject * obj;
 
       bool isPlayer = false;
@@ -167,11 +167,11 @@ void * listen(void * unused)
 
     // get the score and lives number
     bzero(tempBuffer, 5);
-    read(sockfd, tempBuffer, 4);
+    read(sockfd, tempBuffer, sizeof(int));
     int score = (int)(tempBuffer)[0];
 
     bzero(tempBuffer, 5);
-    read(sockfd, tempBuffer, 4);
+    read(sockfd, tempBuffer, sizeof(int));
     int numLives = (int)(tempBuffer)[0];
 
     // CRITICAL SECTION
