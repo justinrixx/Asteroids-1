@@ -22,7 +22,7 @@
 
 #define NUM_INPUTS 6
 #define BUFFER_SIZE 8
-#define B_S_PLUS_1 BUFFER_SIZE * 4 + 1
+#define B_S_PLUS_1 BUFFER_SIZE * sizeof(float) + 1
 #define NUM_ITEMS_IN_CHUNK 7
 
 using namespace std;
@@ -60,7 +60,7 @@ void * listen(void * unused)
     bzero(tempBuffer, 5);
 
     cerr << "Waiting to get chunk counts..." << endl;
-    read(sockfd, tempBuffer, 1);
+    read(sockfd, tempBuffer, 4);
 
     // get the number of chunks
     numChunks = tempBuffer[0];
@@ -74,6 +74,10 @@ void * listen(void * unused)
       bzero(buffer, B_S_PLUS_1);
       read(sockfd, buffer, (BUFFER_SIZE - 1) * sizeof(float));
 
+      /*
+      if (buffer[6] >= 0.9 && buffer[6] <= 1.1)
+      type ;= TYPE_DOG;*/
+      
       TYPE type = (TYPE)(buffer[6]);
       GameObject * obj;
 
@@ -227,10 +231,6 @@ int main(int argc, char **argv)
 {
 
   // CONNECTION STUFF
-  int sockfd, portno;
-  struct sockaddr_in serv_addr;
-  struct hostent *server;
-
   char buffer[2]; // the message buffer
 
   if (argc < 3) {

@@ -50,6 +50,12 @@ client: client.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.
 	g++ -o client client.o transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL -pthread
 
 #######################################################################
+# Unit tests
+#######################################################################
+bytesTest: bytesTest.cpp transform.o gameEnum.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o
+	g++ -o bytesTest bytesTest.cpp transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL -pthread
+
+#######################################################################
 # Seperately compiled files
 #######################################################################
 client.o:asteroids.cpp asteroids.h gameObjects.cpp gameObjects.h
@@ -67,11 +73,8 @@ asteroids.o: asteroids.cpp asteroids.h gameObjects.h gameObjects.cpp
 ai.o: ai.cpp ai.h point.h gameObjects.h gameObjects.cpp
 	g++ ai.cpp -c
 
-gameObjects.o: gameObjects.cpp gameObjects.h transform.cpp transform.h point.h gameEnum.o
+gameObjects.o: gameObjects.cpp gameObjects.h transform.cpp transform.h point.h gameEnum.h
 	g++ gameObjects.cpp -c
-
-gameEnum.o:
-	g++ gameEnum.h -c
 
 transform.o: transform.cpp transform.h point.h
 	g++ transform.cpp -c
