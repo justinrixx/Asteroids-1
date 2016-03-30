@@ -228,6 +228,7 @@ int main(int argc, char **argv)
            writeGameState(asteroids, players);
            
            //wait for refresh time here...
+           sleep((unsigned long) (1 / 30) * 1000);
 	}
 	
 	//
