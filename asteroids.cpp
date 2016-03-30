@@ -9,6 +9,7 @@
 ************************************************************************/
 
 #include "asteroids.h"
+#include "iostream"
 #include "gameObjects.h"
 #include "uiDraw.h"
 using namespace std;
@@ -20,6 +21,7 @@ using namespace std;
  ***********************************************************************/
 void Asteroids::operator ++ (int postfix) // NOTE: "postfix" is not used currently
  {
+
 
    for (list<GameObject*>::iterator it = asteroids.begin(); it != asteroids.end(); ++it)
       (*it)->increment(*this);
