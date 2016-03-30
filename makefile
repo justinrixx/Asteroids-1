@@ -67,11 +67,8 @@ asteroids.o: asteroids.cpp asteroids.h gameObjects.h gameObjects.cpp
 ai.o: ai.cpp ai.h point.h gameObjects.h gameObjects.cpp
 	g++ ai.cpp -c
 
-gameObjects.o: gameObjects.cpp gameObjects.h transform.cpp transform.h point.h gameEnum.o
+gameObjects.o: gameObjects.cpp gameObjects.h transform.cpp transform.h point.h gameEnum.h
 	g++ gameObjects.cpp -c
-
-gameEnum.o:
-	g++ gameEnum.h -c
 
 transform.o: transform.cpp transform.h point.h
 	g++ transform.cpp -c
