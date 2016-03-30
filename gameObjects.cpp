@@ -648,77 +648,80 @@ void Missile::draw()
  ***********************************************************************/
 void Missile::increment(Asteroids & asteroids)
 {
-   if (lifeTime > 0)
-      lifeTime--;
-   else
-      transform.setCollided(true);
-
-   if (lifeTime)
+   if (ai.getTarget() != NULL)
    {
-      float angle = transform.getAngle();
-      float angleBetween = ai.getAngleBetween(
-         Point(transform.getPos(), transform.getDX(), transform.getDY()),
-         Point(ai.getTarget()->transform.getPos(), ai.getTarget()->transform.getDX(), ai.getTarget()->transform.getDY()));
-
-      //We want the missile to come to a stop before it goes after the
-      //target so that it has a better chance of hitting it
-      if (abs(angle - angleBetween) > MISSILETURN)
-      {
-         
-         if (angleBetween > angle)
-         {
-            if (angleBetween - angle > 180)
-               transform.setAngle(angle - MISSILETURN);
-            else
-               transform.setAngle(angle + MISSILETURN);
-         }
-         else //(angle > angleBetween)
-         {
-         if(angle - angleBetween > 180)
-            transform.setAngle(angle + MISSILETURN);
-         else
-            transform.setAngle(angle - MISSILETURN);
-         }
-
-         if (transform.getDX() > MISSILESTOP)
-            transform.setAX(-MISSILESTOP);
-         else if (transform.getDX() < -MISSILESTOP)
-            transform.setAX(MISSILESTOP);
-         else
-         {
-            transform.setDX(0.);
-            transform.setAX(0.);
-         }
-
-         if (transform.getDY() > MISSILESTOP)
-            transform.setAY(-MISSILESTOP);
-         else if (transform.getDY() < -MISSILESTOP)
-            transform.setAY(MISSILESTOP);
-         else
-         {
-            transform.setDY(0.);
-            transform.setAY(0.);
-         }
-
-      
-      }
-      
-      //Now destroy!
+      if (lifeTime > 0)
+         lifeTime--;
       else
+         transform.setCollided(true);
+
+      if (lifeTime)
       {
-         transform.setAngle(angleBetween);
-         if (transform.getSpeed() <= MISSILESPEED)
+         float angle = transform.getAngle();
+         float angleBetween = ai.getAngleBetween(
+            Point(transform.getPos(), transform.getDX(), transform.getDY()),
+            Point(ai.getTarget()->transform.getPos(), ai.getTarget()->transform.getDX(), ai.getTarget()->transform.getDY()));
+
+         //We want the missile to come to a stop before it goes after the
+         //target so that it has a better chance of hitting it
+         if (abs(angle - angleBetween) > MISSILETURN)
          {
-            transform.setAX(cos(transform.getAngle() * PI / 180) * MISSILETHRUST);
-            transform.setAY(sin(transform.getAngle() * PI / 180) * MISSILETHRUST);
+            
+            if (angleBetween > angle)
+            {
+               if (angleBetween - angle > 180)
+                  transform.setAngle(angle - MISSILETURN);
+               else
+                  transform.setAngle(angle + MISSILETURN);
+            }
+            else //(angle > angleBetween)
+            {
+               if(angle - angleBetween > 180)
+                  transform.setAngle(angle + MISSILETURN);
+               else
+                  transform.setAngle(angle - MISSILETURN);
+            }
+
+            if (transform.getDX() > MISSILESTOP)
+               transform.setAX(-MISSILESTOP);
+            else if (transform.getDX() < -MISSILESTOP)
+               transform.setAX(MISSILESTOP);
+            else
+            {
+               transform.setDX(0.);
+               transform.setAX(0.);
+            }
+
+            if (transform.getDY() > MISSILESTOP)
+               transform.setAY(-MISSILESTOP);
+            else if (transform.getDY() < -MISSILESTOP)
+               transform.setAY(MISSILESTOP);
+            else
+            {
+               transform.setDY(0.);
+               transform.setAY(0.);
+            }
+ 
+      
          }
+      
+         //Now destroy!
          else
          {
-            transform.setAX(0);
-            transform.setAY(0);
+            transform.setAngle(angleBetween);
+            if (transform.getSpeed() <= MISSILESPEED)
+            {
+               transform.setAX(cos(transform.getAngle() * PI / 180) * MISSILETHRUST);
+               transform.setAY(sin(transform.getAngle() * PI / 180) * MISSILETHRUST);
+            }
+            else
+            {
+               transform.setAX(0);
+               transform.setAY(0);
+            }
          }
-      }
       
+      }
    }
    
    transform.move();
