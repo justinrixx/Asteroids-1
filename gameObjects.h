@@ -66,7 +66,8 @@ class Ship : public GameObject
 {
   public:
   Ship() : GameObject() { transform.setR(4); };
-   virtual void draw();
+   virtual void draw() {};
+   void draw(int num);
    GameObject * fire();
    GameObject * fireMissile(list<GameObject*> & targets);
    void advance(int left, int right, int up, int down);

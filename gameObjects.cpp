@@ -83,23 +83,23 @@ void Ship::advance(int left, int right, int up, int down)
 /**********************************************************************
  * SHIP::DRAW draws the ship
  ***********************************************************************/
-void Ship::draw()
+void Ship::draw(int num)
 {
    int xMax = transform.getPos().getXMax();
    int xMin = transform.getPos().getXMin();
    int yMax = transform.getPos().getYMax();
    int yMin = transform.getPos().getYMin();
    
-   drawShip(transform.getPos(), transform.getAngle());
+   drawShip(transform.getPos(), transform.getAngle(), num);
    //Apply our wrapping
    drawShip(Point(transform.getPos(), xMax * 2, 0.),
-            transform.getAngle());
+            transform.getAngle(), num);
    drawShip(Point(transform.getPos(), xMin * 2, 0.),
-            transform.getAngle());
+            transform.getAngle(), num);
    drawShip(Point(transform.getPos(), 0., yMax * 2),
-            transform.getAngle());
+            transform.getAngle(), num);
    drawShip(Point(transform.getPos(), 0., yMin * 2),
-            transform.getAngle());
+            transform.getAngle(), num);
 }
 
 /**********************************************************************

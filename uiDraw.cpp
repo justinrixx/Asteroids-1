@@ -280,9 +280,25 @@ void drawDot(const Point &point)
  *  INPUT point   The position of the ship
  *        angle   Which direction it is ponted
  *************************************************************************/
-void drawShip(const Point &center, int rotation)
+void drawShip(const Point &center, int rotation, int num)
 {
-   glColor3ub(0, 0, 255);
+   num = num % 4;
+   switch (num)
+   {
+      case 0:
+         glColor3ub(255, 0, 0);
+         break;
+      case 1:
+         glColor3ub(0, 255, 255);
+         break;
+      case 2:
+         glColor3ub(255, 0, 255);
+         break;
+      case 3:
+         glColor3ub(255, 255, 0);
+         break;
+   }      
+   
    // Get ready, get set...
    glBegin(GL_LINE_STRIP);
 
@@ -329,6 +345,7 @@ void drawShip(const Point &center, int rotation)
  *************************************************************************/
 void drawMissile(const Point &center, int rotation)
 {
+   glColor3ub(200, 200, 200);
    // Get ready, get set...
    glBegin(GL_LINE_STRIP);
 
@@ -375,7 +392,8 @@ void drawMissile(const Point &center, int rotation)
    glVertex2f(      rtop.getX(),        rtop.getY());
    glVertex2f(      rside.getX(),       rside.getY());
    // Done!  OK, that was a bit too dramatic
-   glEnd();   
+   glEnd();
+   glColor3ub(255, 255, 255);
 }
 
 /************************************************************************
@@ -386,6 +404,7 @@ void drawMissile(const Point &center, int rotation)
  *************************************************************************/
 void drawDestroyer(const Point &center, int rotation)
 {
+   glColor3ub(252, 61, 49);
   // Get ready, get set...
    glBegin(GL_LINE_STRIP);
 
@@ -419,7 +438,8 @@ void drawDestroyer(const Point &center, int rotation)
    glVertex2f(      bow.getX(),       bow.getY());
    
    // Done!  OK, that was a bit too dramatic
-   glEnd();    
+   glEnd();
+   glColor3ub(255, 255, 255);
 }
 
 /************************************************************************

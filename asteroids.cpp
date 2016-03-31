@@ -73,9 +73,11 @@ void Asteroids::draw()
 
    if (lives)
    {
+      int i = 0;
       for (list<Ship *>::const_iterator it = players.begin(); it != players.end(); ++it)
       {
-         (*it)->draw();
+         (*it)->draw(i);
+         ++i;
       }
    }
 

@@ -56,7 +56,7 @@ void drawDot(const Point &point);
  * DRAW Ship
  * Draw the spaceship on the screen
  *************************************************************************/
-void drawShip(const Point &point, int rotation);
+void drawShip(const Point &point, int rotation, int num = 1);
 
 /************************************************************************
  * DRAW Missile
