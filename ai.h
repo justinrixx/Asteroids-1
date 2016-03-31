@@ -14,6 +14,7 @@
 #include "point.h"
 #include <vector>
 #include <list>
+#include <iostream>
 using namespace std;
 
 class GameObject;
