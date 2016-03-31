@@ -345,7 +345,7 @@ void drawShip(const Point &center, int rotation, int num)
  *************************************************************************/
 void drawMissile(const Point &center, int rotation)
 {
-   glColor3ub(125, 60, 181);
+   glColor3ub(255, 116, 53);
    // Get ready, get set...
    glBegin(GL_LINE_STRIP);
 
@@ -404,7 +404,7 @@ void drawMissile(const Point &center, int rotation)
  *************************************************************************/
 void drawDestroyer(const Point &center, int rotation)
 {
-   glColor3ub(252, 61, 49);
+   glColor3ub(125, 60, 181);
   // Get ready, get set...
    glBegin(GL_LINE_STRIP);
 
