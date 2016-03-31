@@ -55,8 +55,8 @@ void * listen(void * unused)
     list<GameObject *> * debris = new list<GameObject *>;
     list<Ship *> * players = new list<Ship *>;
 
+    cerr << "Get the number of chunks" << endl;
     bzero(tempBuffer, 5);
-
     read(sockfd, tempBuffer, sizeof(int));
 
     // get the number of chunks
@@ -65,11 +65,15 @@ void * listen(void * unused)
     // inflate the right types
     for (int i = 0; i < numChunks; i++)
     {
+       cerr << "chunk " << i << endl;
+       
       // get the type
       bzero(tempBuffer, 5);
       read(sockfd, tempBuffer, sizeof(TYPE));
 
       TYPE type = ((TYPE *)(tempBuffer))[0];
+
+      cerr << "type: " << type << endl;
 
       bzero(buffer, B_S_PLUS_1);
       read(sockfd, buffer, (BUFFER_SIZE - 1) * sizeof(float));
@@ -90,54 +94,72 @@ void * listen(void * unused)
 
           isPlayer = true;
 
+          cerr << "player" << endl;
+
           break;
         }
         case BULLET:
         {
           obj = new Bullet();
           bullets->push_back(obj);
+
+          cerr << "bullet" << endl;
           break;
         }
         case SMALL_ASTEROID:
         {
           obj = new AsteroidS();
           asteroids->push_back(obj);
+
+          cerr << "small rock" << endl;
           break;
         }
         case MED_ASTEROID:
         {
           obj = new AsteroidM();
           asteroids->push_back(obj);
+
+          cerr << "med rock" << endl;
           break;
         }
         case LARGE_ASTEROID:
         {
           obj = new AsteroidL();
           asteroids->push_back(obj);
+
+          cerr << "large rock" << endl;
           break;
         }
         case MISSILE:
         {
           obj = new Missile();
           bullets->push_back(obj);
+
+          cerr << "missile" << endl;
           break;
         }
         case DEBRIS:
         {
           obj = new Debris();
           debris->push_back(obj);
+
+          cerr << "debris" << endl;
           break;
         }
         case DESTROYER:
         {
           obj = new Destroyer();
           asteroids->push_back(obj);
+
+          cerr << "destroyer" << endl;
           break;
         }
         case SAUCER:
         {
           obj = new Saucer();
           asteroids->push_back(obj);
+
+          cerr << "saucer" << endl;
           break;
         }
       default:
@@ -156,11 +178,16 @@ void * listen(void * unused)
     read(sockfd, tempBuffer, sizeof(int));
     int score = ((int *)(tempBuffer))[0];
 
+    cerr << "Score: " << score << endl;
+
     bzero(tempBuffer, 5);
     read(sockfd, tempBuffer, sizeof(int));
     int numLives = ((int *)(tempBuffer))[0];
 
+    cerr << "numLives: " << numLives << endl;
+
     // CRITICAL SECTION
+    cerr << "about to reset state" << endl;
     pthread_mutex_lock(&mutex);
     //pAsteroids->setState(asteroids, bullets, debris, players, score, numLives);
     pAsteroids->asteroids = *asteroids;
@@ -171,6 +198,8 @@ void * listen(void * unused)
     pAsteroids->score = score;
     pAsteroids->lives = numLives;
     pthread_mutex_unlock(&mutex);
+
+    cerr << "mutex unlocked" << endl;
 
   }
 }
