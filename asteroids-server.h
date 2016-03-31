@@ -15,7 +15,7 @@
 #include <list>
 #include "gameObjects.h"
 
-#define MISSILECOOLDOWN 120
+#define MISSILECOOLDOWN 10
 #define SPAWNTIME 90
 
 using namespace std;
