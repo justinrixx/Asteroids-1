@@ -92,8 +92,7 @@ void writeGameState(const Asteroids & asteroids, const vector<PlayerInput *> & p
    {
       TYPE type = (*it)->getType();
       float * dat = (*it)->toBytes();
-
-      cerr << "type: " << type << endl;
+      
       for (int i = 0; i < players.size(); ++i)
       {
          write(players[i]->fd, &type, sizeof(int));
