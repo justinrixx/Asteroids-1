@@ -59,7 +59,7 @@ void Asteroids::operator ++ (int postfix)
 void Asteroids::shipInput(int iPlayer, int left, int right, int up, int down, bool space)
 {   	
    players[iPlayer]->advance(left, right, up, down);
-   if (space && down && !missileTime && lives)
+   if (space && down && missileTime <= 0 && lives)
    {
       bullets.push_back(players[iPlayer]->fireMissile(asteroids));
       missileTime = MISSILECOOLDOWN;
