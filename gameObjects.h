@@ -27,7 +27,7 @@ using namespace std;
 //GAMEPLAY BALANCERS
 #define MISSILELAUNCH 5 //launch speed
 #define BULLETLAUNCH 5
-#define BULLETLIFETIME 240
+#define BULLETLIFETIME 140
 #define SHIPTHRUST .2
 #define SAUCERSHOO TTIME 30//time between successive shots
 #define SHIPTURN 10
