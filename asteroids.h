@@ -23,7 +23,9 @@ using namespace std;
 class Asteroids
 {
   public:
-  Asteroids() : difficulty(0), score(0), missileTime(0), lives(3), spawnTime(0) { newWave(); };
+  Asteroids() : difficulty(0), score(0), missileTime(0), lives(3), spawnTime(0) { 
+
+  };
    void operator ++ (int postfix);
    void shipInput(int left, int right, int up, int down, bool space);
    list<GameObject*> asteroids;

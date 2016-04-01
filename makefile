@@ -25,44 +25,42 @@ deault:
 
 ## SERVER STUFF
 server: asteroids-server.h gameObjects.o transform.o gameObjects.o asteroids-server.o uiInteract.o uiDraw.o ai.o server.cpp
-	g++ -o server server.cpp asteroids-server.h gameObjects.o transform.o asteroids-server.o uiInteract.o uiDraw.o ai.o -lglut -lGLU -lGL -lpthread
+	g++ -g -o server server.cpp asteroids-server.h gameObjects.o transform.o asteroids-server.o uiInteract.o uiDraw.o ai.o -lglut -lGLU -lGL -lpthread
 
 asteroids-server.o: gameObjects.o asteroids-server.cpp
-	g++ -c asteroids-server.cpp gameObjects.o
+	g++ -g -c asteroids-server.cpp gameObjects.o
 
 ## CLIENT STUFF
-client: client.o transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o
-	g++ -o client client.o transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL -pthread
+client: transform.o gameObjects.o asteroids.o uiInteract.o uiDraw.o ai.o client.cpp
+	g++ -g -o client client.cpp transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL -pthread
 
 #######################################################################
 # Unit tests
 #######################################################################
 bytesTest: bytesTest.cpp transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o
-	g++ -o bytesTest bytesTest.cpp transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL -pthread
+	g++ -g -o bytesTest bytesTest.cpp transform.o gameObjects.o asteroids.o uiDraw.o uiInteract.o ai.o -lglut -lGLU -lGL -pthread
 
 #######################################################################
 # Seperately compiled files
 #######################################################################
-client.o:asteroids.cpp asteroids.h client.cpp gameObjects.cpp gameObjects.h
-	g++ client.cpp -c -lpthread
 
 uiInteract.o: uiInteract.h uiInteract.cpp
-	g++ uiInteract.cpp uiInteract.h -c
+	g++ -g uiInteract.cpp uiInteract.h -c
 
 uiDraw.o: uiDraw.h uiDraw.cpp
-	g++ uiDraw.cpp uiDraw.h -c
+	g++ -g uiDraw.cpp uiDraw.h -c
 
 asteroids.o: asteroids.cpp asteroids.h gameObjects.h gameObjects.cpp
-	g++ asteroids.cpp -c
+	g++ -g asteroids.cpp -c
 
 ai.o: ai.cpp ai.h point.h gameObjects.h gameObjects.cpp
-	g++ ai.cpp -c
+	g++ -g ai.cpp -c
 
 gameObjects.o: gameObjects.cpp gameObjects.h transform.cpp transform.h point.h gameEnum.h
-	g++ gameObjects.cpp -c
+	g++ -g gameObjects.cpp -c
 
 transform.o: transform.cpp transform.h point.h
-	g++ transform.cpp -c
+	g++ -g transform.cpp -c
 
 #######################################################################
 # Extra Stuff

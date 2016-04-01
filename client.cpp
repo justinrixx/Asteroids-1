@@ -37,7 +37,7 @@ char tempBuffer[5] = {0, 0, 0, 0, 0};
 
 // SYNCHRONIZATION STUFF
 pthread_mutex_t mutex;
-Asteroids *pAsteroids;
+Asteroids *pAsteroids = NULL;
 
 /**********************************************************************
  * What the thread does forever while the game is running. Get input
@@ -51,7 +51,7 @@ void * listen(void * unused)
   while (true)
   {
     list<GameObject *> * bullets = new list<GameObject *>;
-    list<GameObject *> * asteroids = new list<GameObject *>;
+    list<GameObject *> * rocks = new list<GameObject *>;
     list<GameObject *> * debris = new list<GameObject *>;
     list<Ship *> * players = new list<Ship *>;
 
@@ -109,7 +109,7 @@ void * listen(void * unused)
         case SMALL_ASTEROID:
         {
           obj = new AsteroidS();
-          asteroids->push_back(obj);
+          rocks->push_back(obj);
 
           cerr << "small rock" << endl;
           break;
@@ -117,7 +117,7 @@ void * listen(void * unused)
         case MED_ASTEROID:
         {
           obj = new AsteroidM();
-          asteroids->push_back(obj);
+          rocks->push_back(obj);
 
           cerr << "med rock" << endl;
           break;
@@ -125,7 +125,7 @@ void * listen(void * unused)
         case LARGE_ASTEROID:
         {
           obj = new AsteroidL();
-          asteroids->push_back(obj);
+          rocks->push_back(obj);
 
           cerr << "large rock" << endl;
           break;
@@ -149,7 +149,7 @@ void * listen(void * unused)
         case DESTROYER:
         {
           obj = new Destroyer();
-          asteroids->push_back(obj);
+          rocks->push_back(obj);
 
           cerr << "destroyer" << endl;
           break;
@@ -157,7 +157,7 @@ void * listen(void * unused)
         case SAUCER:
         {
           obj = new Saucer();
-          asteroids->push_back(obj);
+          rocks->push_back(obj);
 
           cerr << "saucer" << endl;
           break;
@@ -188,17 +188,22 @@ void * listen(void * unused)
 
     // CRITICAL SECTION
     cerr << "about to reset state" << endl;
-    pthread_mutex_lock(&mutex);
-    //pAsteroids->setState(asteroids, bullets, debris, players, score, numLives);
-    pAsteroids->asteroids = *asteroids;
-    pAsteroids->bullets = *bullets;
-    pAsteroids->debris = *debris;
-    pAsteroids->players = *players;
-    // todo score numlives
-    pAsteroids->score = score;
-    pAsteroids->lives = numLives;
-    pthread_mutex_unlock(&mutex);
 
+    pthread_mutex_lock(&mutex); ///////////////////////////////
+    if (pAsteroids != NULL) {
+      //pAsteroids->setState(asteroids, bullets, debris, players, score, numLives);
+      pAsteroids->asteroids = *rocks;
+      pAsteroids->bullets = *bullets;
+      pAsteroids->debris = *debris;
+      pAsteroids->players = *players;
+      // todo score numlives
+      pAsteroids->score = score;
+      pAsteroids->lives = numLives;
+    } else {
+      cerr << "Astroids was Null!" << endl;
+    }
+
+    pthread_mutex_unlock(&mutex); ///////////////////////////////
     cerr << "mutex unlocked" << endl;
 
   }
@@ -211,7 +216,9 @@ void * listen(void * unused)
  **********************************************************************/
 void callBack(const Interface *pUI, void *p)
 {
-   pAsteroids = (Asteroids *)p;
+    cerr << "callback: chaning asteroids..." << endl;
+    pAsteroids = (Asteroids *)p;
+    cerr << "done." << endl;
 
    // send the user's input to the server
    inputs[0] = pUI->isUp();
@@ -298,6 +305,9 @@ int main(int argc, char **argv)
    Interface ui(argc, argv, "Asteroids");
 
 
+   // play the game.  Our function callback will get called periodically
+   Asteroids asteroids;
+
    // start the thread
    pthread_t listen_thread;
    int id = pthread_create(&listen_thread, NULL, listen, NULL);
@@ -305,8 +315,6 @@ int main(int argc, char **argv)
    if (id < 0)
      cerr << "Error creating thread" << endl;
    
-   // play the game.  Our function callback will get called periodically
-   Asteroids asteroids;
    ui.run(callBack, (void *)&asteroids);
 
    // end the thread
