@@ -104,6 +104,10 @@ void writeGameState(const Asteroids & asteroids, const vector<PlayerInput *> & p
    // score
    writeAll(&asteroids.score, sizeof(int), players);
    writeAll(&asteroids.lives, sizeof(int), players);
+
+   // write end input
+   char c = END_INPUT_CHAR;
+   writeAll(&c, sizeof(char), players);
 }
 
 /*******************************************************************

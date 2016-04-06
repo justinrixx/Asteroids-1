@@ -1,6 +1,8 @@
 #ifndef _GAME_ENUM_H
 #define _GAME_ENUM_H
 
+#define END_INPUT_CHAR '~'
+
 enum TYPE {
   SMALL_ASTEROID,
   MED_ASTEROID,

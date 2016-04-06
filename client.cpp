@@ -46,7 +46,8 @@ Asteroids *pAsteroids = NULL;
 void * listen(void * unused)
 {
   int numChunks = 0;
-
+  bool badState = false;
+  
   float buffer[BUFFER_SIZE];
   while (true)
   {
@@ -62,115 +63,122 @@ void * listen(void * unused)
     // get the number of chunks
     numChunks = ((int *)(tempBuffer))[0];
 
-    // inflate the right types
-    for (int i = 0; i < numChunks; i++)
+    if (numChunks < 0 || numChunks > 100000)
+       badState = true;
+
+    if (!badState)
     {
-       cerr << "chunk " << i << endl;
+       // inflate the right types
+       for (int i = 0; i < numChunks; i++)
+       {
+          cerr << "chunk " << i << endl;
        
-      // get the type
-      bzero(tempBuffer, 5);
-      read(sockfd, tempBuffer, sizeof(TYPE));
+          // get the type
+          bzero(tempBuffer, 5);
+          read(sockfd, tempBuffer, sizeof(TYPE));
 
-      TYPE type = ((TYPE *)(tempBuffer))[0];
+          TYPE type = ((TYPE *)(tempBuffer))[0];
 
-      cerr << "type: " << type << endl;
+          cerr << "type: " << type << endl;
 
-      bzero(buffer, B_S_PLUS_1);
-      read(sockfd, buffer, (BUFFER_SIZE - 1) * sizeof(float));
+          bzero(buffer, B_S_PLUS_1);
+          read(sockfd, buffer, (BUFFER_SIZE - 1) * sizeof(float));
 
-      GameObject * obj;
+          GameObject * obj;
 
-      bool isPlayer = false;
+          bool isPlayer = false;
 
-      // Inflate the correct type of object
-      switch (type)
-      {
-        case PLAYER:
-        {
-          Ship * pship = new Ship();
-          pship->fromBytes(buffer);
+          // Inflate the correct type of object
+          switch (type)
+          {
+             case PLAYER:
+             {
+                Ship * pship = new Ship();
+                pship->fromBytes(buffer);
 
-          players->push_back(pship);
+                players->push_back(pship);
 
-          isPlayer = true;
+                isPlayer = true;
 
-          cerr << "player" << endl;
+                cerr << "player" << endl;
 
-          break;
-        }
-        case BULLET:
-        {
-          obj = new Bullet();
-          bullets->push_back(obj);
+                break;
+             }
+             case BULLET:
+             {
+                obj = new Bullet();
+                bullets->push_back(obj);
 
-          cerr << "bullet" << endl;
-          break;
-        }
-        case SMALL_ASTEROID:
-        {
-          obj = new AsteroidS();
-          rocks->push_back(obj);
+                cerr << "bullet" << endl;
+                break;
+             }
+             case SMALL_ASTEROID:
+             {
+                obj = new AsteroidS();
+                rocks->push_back(obj);
 
-          cerr << "small rock" << endl;
-          break;
-        }
-        case MED_ASTEROID:
-        {
-          obj = new AsteroidM();
-          rocks->push_back(obj);
+                cerr << "small rock" << endl;
+                break;
+             }
+             case MED_ASTEROID:
+             {
+                obj = new AsteroidM();
+                rocks->push_back(obj);
 
-          cerr << "med rock" << endl;
-          break;
-        }
-        case LARGE_ASTEROID:
-        {
-          obj = new AsteroidL();
-          rocks->push_back(obj);
+                cerr << "med rock" << endl;
+                break;
+             }
+             case LARGE_ASTEROID:
+             {
+                obj = new AsteroidL();
+                rocks->push_back(obj);
 
-          cerr << "large rock" << endl;
-          break;
-        }
-        case MISSILE:
-        {
-          obj = new Missile();
-          bullets->push_back(obj);
+                cerr << "large rock" << endl;
+                break;
+             }
+             case MISSILE:
+             {
+                obj = new Missile();
+                bullets->push_back(obj);
 
-          cerr << "missile" << endl;
-          break;
-        }
-        case DEBRIS:
-        {
-          obj = new Debris();
-          debris->push_back(obj);
+                cerr << "missile" << endl;
+                break;
+             }
+             case DEBRIS:
+             {
+                obj = new Debris();
+                debris->push_back(obj);
 
-          cerr << "debris" << endl;
-          break;
-        }
-        case DESTROYER:
-        {
-          obj = new Destroyer();
-          rocks->push_back(obj);
+                cerr << "debris" << endl;
+                break;
+             }
+             case DESTROYER:
+             {
+                obj = new Destroyer();
+                rocks->push_back(obj);
 
-          cerr << "destroyer" << endl;
-          break;
-        }
-        case SAUCER:
-        {
-          obj = new Saucer();
-          rocks->push_back(obj);
+                cerr << "destroyer" << endl;
+                break;
+             }
+             case SAUCER:
+             {
+                obj = new Saucer();
+                rocks->push_back(obj);
 
-          cerr << "saucer" << endl;
-          break;
-        }
-      default:
-	cerr << "Type not recognized" << endl;
-      }
-
-      // set all the members
-      if (!isPlayer) 
-      {
-        obj->fromBytes(buffer);
-      }
+                cerr << "saucer" << endl;
+                break;
+             }
+             default:
+                cerr << "Type not recognized" << endl;
+                badState = true;
+          }
+   
+          // set all the members
+          if (!isPlayer) 
+          {
+             obj->fromBytes(buffer);
+          }
+       }
     }
 
     // get the score and lives number
@@ -189,23 +197,31 @@ void * listen(void * unused)
     // CRITICAL SECTION
     cerr << "about to reset state" << endl;
 
-    pthread_mutex_lock(&mutex); ///////////////////////////////
-    if (pAsteroids != NULL) {
-      //pAsteroids->setState(asteroids, bullets, debris, players, score, numLives);
-      pAsteroids->asteroids = *rocks;
-      pAsteroids->bullets = *bullets;
-      pAsteroids->debris = *debris;
-      pAsteroids->players = *players;
-      // todo score numlives
-      pAsteroids->score = score;
-      pAsteroids->lives = numLives;
-    } else {
-      cerr << "Astroids was Null!" << endl;
+    if (!badState)
+    {
+       pthread_mutex_lock(&mutex); ///////////////////////////////
+       if (pAsteroids != NULL) {
+          //pAsteroids->setState(asteroids, bullets, debris, players, score, numLives);
+          pAsteroids->asteroids = *rocks;
+          pAsteroids->bullets = *bullets;
+          pAsteroids->debris = *debris;
+          pAsteroids->players = *players;
+          // todo score numlives
+          pAsteroids->score = score;
+          pAsteroids->lives = numLives;
+    
+       } else {
+          cerr << "Astroids was Null!" << endl;
+       }
+
+       pthread_mutex_unlock(&mutex); ///////////////////////////////
+       cerr << "mutex unlocked" << endl;
     }
-
-    pthread_mutex_unlock(&mutex); ///////////////////////////////
-    cerr << "mutex unlocked" << endl;
-
+    do
+    {
+       bzero(tempBuffer, 5);
+       read(sockfd, tempBuffer, sizeof(char));
+    } while (tempBuffer[0] != END_INPUT_CHAR);
   }
 }
 
