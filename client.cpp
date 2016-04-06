@@ -222,6 +222,7 @@ void * listen(void * unused)
        bzero(tempBuffer, 5);
        read(sockfd, tempBuffer, sizeof(char));
     } while (tempBuffer[0] != END_INPUT_CHAR);
+    badState = false;
   }
 }
 
